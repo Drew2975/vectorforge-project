@@ -1,0 +1,4927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VectorForge MVP - Complete Implementation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'JetBrains Mono', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f1419, #1a252f);
+            min-height: 100vh;
+            padding: 20px;
+            color: #ecf0f1;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            background: #1a252f;
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #27ae60, #2ecc71);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #0f1419;
+            border-bottom: 1px solid #34495e;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            background: #2c3e50;
+            color: #ecf0f1;
+            border: none;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            border-right: 1px solid #34495e;
+            transition: background 0.3s;
+        }
+        
+        .nav-tab:hover {
+            background: #34495e;
+        }
+        
+        .nav-tab.active {
+            background: #27ae60;
+        }
+        
+        .nav-tab:last-child {
+            border-right: none;
+        }
+        
+        .content {
+            padding: 30px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .code-block {
+            background: #0f1419;
+            border: 1px solid #34495e;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .bash {
+            color: #27ae60;
+        }
+        
+        .json {
+            color: #3498db;
+        }
+        
+        .yaml {
+            color: #f39c12;
+        }
+        
+        .markdown {
+            color: #e74c3c;
+        }
+        
+        .file-header {
+            background: #34495e;
+            color: #ecf0f1;
+            padding: 8px 15px;
+            margin: 20px 0 0 0;
+            border-radius: 6px 6px 0 0;
+            font-weight: 600;
+            border-bottom: 1px solid #2c3e50;
+        }
+        
+        .file-content {
+            background: #0f1419;
+            border: 1px solid #34495e;
+            border-top: none;
+            border-radius: 0 0 6px 6px;
+            padding: 20px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .download-btn {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-left: 10px;
+            transition: background 0.3s;
+        }
+        
+        .download-btn:hover {
+            background: #229954;
+        }
+        
+        .directory-tree {
+            background: #0f1419;
+            border: 1px solid #34495e;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 15px 0;
+            font-size: 0.9rem;
+            color: #3498db;
+            line-height: 1.6;
+        }
+        
+        .success {
+            color: #27ae60;
+            font-weight: 600;
+        }
+        
+        .warning {
+            color: #f39c12;
+            font-weight: 600;
+        }
+        
+        .error {
+            color: #e74c3c;
+            font-weight: 600;
+        }
+        
+        .info {
+            color: #3498db;
+            font-weight: 600;
+        }
+        
+        .highlight {
+            background: #34495e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            color: #f39c12;
+        }
+        
+        h2 {
+            color: #27ae60;
+            margin: 20px 0 15px 0;
+            border-bottom: 2px solid #27ae60;
+            padding-bottom: 5px;
+        }
+        
+        h3 {
+            color: #3498db;
+            margin: 15px 0 10px 0;
+        }
+        
+        p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        ul {
+            margin: 10px 0 10px 20px;
+        }
+        
+        li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔧 VectorForge MVP</h1>
+            <p>Complete Git-Based AI Coordination System</p>
+        </div>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="showTab('validator')">Validator</button>
+            <button class="nav-tab" onclick="showTab('hasher')">Hasher</button>
+            <button class="nav-tab" onclick="showTab('lane-engine')">Lane Engine</button>
+            <button class="nav-tab" onclick="showTab('merge-bot')">Merge Bot</button>
+            <button class="nav-tab" onclick="showTab('hooks')">Git Hooks</button>
+            <button class="nav-tab" onclick="showTab('setup')">Setup</button>
+            <button class="nav-tab" onclick="showTab('smoke-test')">Smoke Test</button>
+        </div>
+        
+        <div class="content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <h2>VectorForge MVP - Complete Implementation</h2>
+                <p>Git-based AI coordination system with automated two-lane governance.</p>
+                
+                <h3>🎯 What This Delivers</h3>
+                <ul>
+                    <li><span class="success">Zero-context-loss</span> AI agent handoffs</li>
+                    <li><span class="info">Automated lane selection</span> (fast path vs review path)</li>
+                    <li><span class="warning">Human oversight</span> for critical changes only</li>
+                    <li><span class="highlight">Git-native workflow</span> - no APIs or databases</li>
+                </ul>
+                
+                <h3>📁 Repository Structure</h3>
+                <div class="directory-tree">vectorforge-mvp/
+├── validator/
+│   ├── vf-validate          # JSON schema + semantic validation
+│   └── packet-schema.json   # JSON Schema v2020-12
+├── hasher/
+│   └── vf-hash             # Canonical SHA256 implementation
+├── lane_engine/
+│   └── vf-lane             # Lane determination logic
+├── merge_bot/
+│   ├── vf-merge            # Automated Git operations
+│   └── vf-ack              # ACK file creation
+├── hooks/
+│   ├── post-receive        # Git hook for automation
+│   └── pre-commit          # Validation before commit
+├── projects/               # Example project structure
+│   └── user-auth-api/
+│       ├── living-doc.md
+│       ├── sections/
+│       ├── packets/
+│       ├── logs/
+│       └── acks/
+├── README.md               # Setup and usage guide
+└── smoke-test.sh          # End-to-end validation</div>
+                
+                <h3>⚡ Core Features</h3>
+                <ul>
+                    <li><strong>Lane Logic:</strong> Automatically routes routine updates vs critical changes</li>
+                    <li><strong>Hash Verification:</strong> Ensures perfect context preservation</li>
+                    <li><strong>Git Integration:</strong> Native branching, merging, and audit trails</li>
+                    <li><strong>JSON Schema:</strong> Bulletproof packet validation</li>
+                    <li><strong>Anti-Drift:</strong> Mandatory reviews every 10th handoff</li>
+                </ul>
+                
+                <h3>🚀 Quick Start</h3>
+                <div class="code-block bash">
+# Clone and setup
+git clone https://github.com/your-org/vectorforge-mvp
+cd vectorforge-mvp
+chmod +x */vf-*
+export PATH=$PATH:$(pwd)/validator:$(pwd)/hasher:$(pwd)/lane_engine:$(pwd)/merge_bot
+
+# Run smoke test
+./smoke-test.sh
+
+# Start using
+cd projects/your-project
+vf-validate packets/H-001.json
+vf-lane packets/H-001.json
+vf-merge packets/H-001.json</div>
+            </div>
+            
+            <!-- Validator Tab -->
+            <div id="validator" class="tab-content">
+                <h2>Packet Validator</h2>
+                <p>JSON Schema validation + semantic checks for VectorForge packets.</p>
+                
+                <div class="file-header">
+                    validator/vf-validate
+                    <button class="download-btn" onclick="downloadFile('vf-validate', getValidatorScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-validate - VectorForge packet validator
+# Usage: vf-validate <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCHEMA_FILE="$SCRIPT_DIR/packet-schema.json"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-validate <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+if [[ ! -f "$SCHEMA_FILE" ]]; then
+    echo "Error: Schema file not found: $SCHEMA_FILE"
+    exit 1
+fi
+
+# JSON Schema validation
+if ! command -v ajv &> /dev/null; then
+    echo "Error: ajv-cli not installed. Run: npm install -g ajv-cli"
+    exit 1
+fi
+
+echo "🔍 Validating JSON schema..."
+if ! ajv validate -s "$SCHEMA_FILE" -d "$PACKET_FILE"; then
+    echo "❌ Schema validation failed"
+    exit 1
+fi
+
+echo "✅ Schema validation passed"
+
+# Semantic validation
+echo "🔍 Validating semantics..."
+
+# Extract project directory
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+
+# Check if living document exists
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$PROJECT_DIR/$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "❌ Workspace section not found: $SECTION_FILE"
+    exit 3
+fi
+
+# Verify hash
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    echo "❌ Hash verification failed"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+    exit 2
+fi
+
+echo "✅ Hash verification passed"
+
+# Verify always_keep hash
+ALWAYS_KEEP_JSON=$(jq -c '.always_keep | sort' "$PACKET_FILE")
+CLAIMED_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+COMPUTED_AK_HASH=$(echo "$ALWAYS_KEEP_JSON" | sha256sum | cut -d' ' -f1)
+
+if [[ "$CLAIMED_AK_HASH" != "$COMPUTED_AK_HASH" ]]; then
+    echo "❌ Always Keep hash verification failed"
+    echo "   Claimed: $CLAIMED_AK_HASH"
+    echo "   Computed: $COMPUTED_AK_HASH"
+    exit 2
+fi
+
+echo "✅ Always Keep hash verification passed"
+
+# Check handoff ID format
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+if [[ ! "$HANDOFF_ID" =~ ^H-[0-9A-Za-z_-]+$ ]]; then
+    echo "❌ Invalid handoff ID format: $HANDOFF_ID"
+    exit 3
+fi
+
+echo "✅ Handoff ID format valid"
+
+echo "🎉 All validations passed"
+exit 0</div>
+                
+                <div class="file-header">
+                    validator/packet-schema.json
+                    <button class="download-btn" onclick="downloadFile('packet-schema.json', getSchemaFile(), 'application/json')">Download</button>
+                </div>
+                <div class="file-content json">{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VectorForge Handoff Packet",
+  "type": "object",
+  "required": [
+    "handoff_id", "from_agent", "to_agent", "round",
+    "lane", "auto_merge_eligible", "risk_assessment",
+    "always_keep", "always_keep_hash", "scope_delta",
+    "workspace_section", "work_done", "next_tasks",
+    "attention_required", "confidence_level", "hash_verification",
+    "cross_project_dependencies", "timestamp_utc", "verification_signature"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^H-[0-9A-Za-z_-]+$",
+      "description": "Unique handoff identifier"
+    },
+    "from_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Source agent name"
+    },
+    "to_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Target agent name"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Handoff round number"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["fast_path", "review_path"],
+      "description": "Processing lane"
+    },
+    "auto_merge_eligible": {
+      "type": "boolean",
+      "description": "Whether this handoff can be auto-merged"
+    },
+    "risk_assessment": {
+      "type": "string",
+      "enum": ["low", "high"],
+      "description": "Risk level assessment"
+    },
+    "always_keep": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Non-negotiable constraints"
+    },
+    "always_keep_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of always_keep array"
+    },
+    "scope_delta": {
+      "type": "string",
+      "enum": ["none", "budget change", "timeline change", "deps change"],
+      "description": "Type of scope change"
+    },
+    "workspace_section": {
+      "type": "string",
+      "pattern": "^sections/[^\\n]+\\.md$",
+      "description": "Reference to workspace section file"
+    },
+    "work_done": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Summary of completed work"
+    },
+    "next_tasks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Tasks for the receiving agent"
+    },
+    "attention_required": {
+      "type": "boolean",
+      "description": "Whether human attention is required"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "low"],
+      "description": "Agent confidence in the work"
+    },
+    "hash_verification": {
+      "type": "string",
+      "enum": ["pass", "fail"],
+      "description": "Hash verification status"
+    },
+    "cross_project_dependencies": {
+      "type": "boolean",
+      "description": "Whether this affects other projects"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of handoff"
+    },
+    "verification_signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of workspace section content"
+    }
+  },
+  "additionalProperties": false
+}`;
+        }
+        
+        function getHasherScript() {
+            return `#!/bin/bash
+# vf-hash - VectorForge canonical hasher
+# Usage: vf-hash <file>
+
+set -e
+
+FILE="$1"
+
+if [[ -z "$FILE" ]]; then
+    echo "Usage: vf-hash <file>"
+    exit 1
+fi
+
+if [[ ! -f "$FILE" ]]; then
+    echo "Error: File not found: $FILE"
+    exit 1
+fi
+
+# Canonical normalization rules:
+# 1. UTF-8 encoding (assume input is UTF-8)
+# 2. LF line endings
+# 3. Trim trailing whitespace per line
+# 4. No other normalization
+
+# Create temporary file for normalization
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+
+# Process file with canonical rules
+sed 's/[[:space:]]*$//' "$FILE" | \\
+sed 's/\\r$//' > "$TEMP_FILE"
+
+# Compute SHA256 hash
+HASH=$(sha256sum "$TEMP_FILE" | cut -d' ' -f1)
+
+echo "$HASH"`;
+        }
+        
+        function getLaneEngineScript() {
+            return `#!/bin/bash
+# vf-lane - VectorForge lane engine
+# Usage: vf-lane <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-lane <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Extract packet data
+LANE=$(jq -r '.lane' "$PACKET_FILE")
+SCOPE_DELTA=$(jq -r '.scope_delta' "$PACKET_FILE")
+ATTENTION_REQUIRED=$(jq -r '.attention_required' "$PACKET_FILE")
+CONFIDENCE_LEVEL=$(jq -r '.confidence_level' "$PACKET_FILE")
+HASH_VERIFICATION=$(jq -r '.hash_verification' "$PACKET_FILE")
+CROSS_DEPS=$(jq -r '.cross_project_dependencies' "$PACKET_FILE")
+ROUND=$(jq -r '.round' "$PACKET_FILE")
+
+# Project directory and state
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+
+# Check for previous packets to compare always_keep
+PACKETS_DIR="$PROJECT_DIR/packets"
+PREVIOUS_PACKETS=($(ls "$PACKETS_DIR"/H-*.json 2>/dev/null | sort -V | head -n -1))
+
+ALWAYS_KEEP_CHANGED=false
+if [[ \${#PREVIOUS_PACKETS[@]} -gt 0 ]]; then
+    LATEST_PREVIOUS="\${PREVIOUS_PACKETS[-1]}"
+    CURRENT_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+    PREVIOUS_AK_HASH=$(jq -r '.always_keep_hash' "$LATEST_PREVIOUS")
+    
+    if [[ "$CURRENT_AK_HASH" != "$PREVIOUS_AK_HASH" ]]; then
+        ALWAYS_KEEP_CHANGED=true
+    fi
+fi
+
+# Check for mandatory review (every 10th handoff)
+MANDATORY_REVIEW=false
+if (( ROUND % 10 == 0 )); then
+    MANDATORY_REVIEW=true
+fi
+
+# Lane determination logic
+FINAL_LANE="fast_path"
+
+# Force review_path conditions
+if [[ "$ALWAYS_KEEP_CHANGED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (always_keep modified)" >&2
+elif [[ "$SCOPE_DELTA" != "none" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (scope change: $SCOPE_DELTA)" >&2
+elif [[ "$ATTENTION_REQUIRED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (attention required)" >&2
+elif [[ "$CONFIDENCE_LEVEL" == "low" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (low confidence)" >&2
+elif [[ "$HASH_VERIFICATION" == "fail" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (hash verification failed)" >&2
+elif [[ "$CROSS_DEPS" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (cross-project dependencies)" >&2
+elif [[ "$MANDATORY_REVIEW" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (mandatory 10th handoff review)" >&2
+else
+    echo "# Lane: fast_path (all conditions met)" >&2
+fi
+
+# Verify packet lane matches computed lane
+PACKET_LANE=$(jq -r '.lane' "$PACKET_FILE")
+if [[ "$PACKET_LANE" != "$FINAL_LANE" ]]; then
+    echo "Warning: Packet declares lane '$PACKET_LANE' but computed lane is '$FINAL_LANE'" >&2
+fi
+
+echo "$FINAL_LANE"
+exit 0`;
+        }
+        
+        function getMergeBotScript() {
+            return `#!/bin/bash
+# vf-merge - VectorForge merge bot
+# Usage: vf-merge <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-merge <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Validate packet first
+if ! vf-validate "$PACKET_FILE"; then
+    echo "❌ Packet validation failed"
+    exit 1
+fi
+
+# Determine lane
+LANE=$(vf-lane "$PACKET_FILE")
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+FROM_AGENT=$(jq -r '.from_agent' "$PACKET_FILE")
+TO_AGENT=$(jq -r '.to_agent' "$PACKET_FILE")
+WORK_DONE=$(jq -r '.work_done' "$PACKET_FILE")
+
+# Ensure we're in the project directory
+cd "$PROJECT_DIR"
+
+# Create audit log entry
+AUDIT_LOG="handoff-audit.log"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "$TIMESTAMP $HANDOFF_ID $LANE processing" >> "$AUDIT_LOG"
+
+if [[ "$LANE" == "fast_path" ]]; then
+    echo "🚀 Fast path: Auto-merging $HANDOFF_ID"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🤖 Auto-merge $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: fast_path
+Auto-merged by VectorForge"
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE auto-merged" >> "$AUDIT_LOG"
+    echo "✅ Auto-merge completed"
+    
+elif [[ "$LANE" == "review_path" ]]; then
+    echo "🔍 Review path: Creating PR for $HANDOFF_ID"
+    
+    # Create feature branch
+    BRANCH_NAME="handoff/$HANDOFF_ID"
+    git checkout -b "$BRANCH_NAME"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🔍 Review required: $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: review_path
+Requires steward approval"
+    
+    # Push branch
+    git push -u origin "$BRANCH_NAME"
+    
+    # Create PR (if GitHub CLI is available)
+    if command -v gh &> /dev/null; then
+        gh pr create \\
+            --title "🔍 Handoff $HANDOFF_ID: $FROM_AGENT → $TO_AGENT" \\
+            --body "**Handoff ID:** $HANDOFF_ID
+**Lane:** review_path
+**From:** $FROM_AGENT
+**To:** $TO_AGENT
+
+**Work Done:**
+$WORK_DONE
+
+**Review Required:** This handoff requires steward approval due to:
+- Critical constraint changes
+- Scope modifications
+- Agent uncertainty
+- Mandatory review cycle
+
+**Next Steps:**
+1. Review the changes in the diff
+2. Verify all 'Always Keep' constraints are preserved
+3. Approve or request changes
+4. Merge when ready" \\
+            --label "needs-steward-review" \\
+            --assignee "@me"
+        
+        echo "✅ Pull request created"
+    else
+        echo "ℹ️  GitHub CLI not available. Manual PR creation required."
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Please create PR manually for steward review."
+    fi
+    
+    # Return to main branch
+    git checkout main
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE pr-created" >> "$AUDIT_LOG"
+    echo "✅ Review path processing completed"
+    
+else
+    echo "❌ Unknown lane: $LANE"
+    exit 1
+fi
+
+echo "📊 Audit log updated: $AUDIT_LOG"`;
+        }
+        
+        function getAckScript() {
+            return `#!/bin/bash
+# vf-ack - VectorForge acknowledgment creator
+# Usage: vf-ack <handoff-id> <agent-name> [notes]
+
+set -e
+
+HANDOFF_ID="$1"
+AGENT_NAME="$2"
+NOTES="\${3:-}"
+
+if [[ -z "$HANDOFF_ID" || -z "$AGENT_NAME" ]]; then
+    echo "Usage: vf-ack <handoff-id> <agent-name> [notes]"
+    echo "Example: vf-ack H-001 chatgpt 'Proceeding with implementation'"
+    exit 1
+fi
+
+# Find project directory (assume we're in it or can find packets/)
+if [[ -d "packets" ]]; then
+    PROJECT_DIR="."
+else
+    echo "Error: Must be run from project directory (containing packets/ folder)"
+    exit 1
+fi
+
+# Find the corresponding packet
+PACKET_FILE="packets/$HANDOFF_ID.json"
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Verify hash of workspace section
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "Error: Workspace section not found: $SECTION_FILE"
+    exit 1
+fi
+
+# Compute hash and compare
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+HASH_MATCH=true
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    HASH_MATCH=false
+    echo "⚠️  Warning: Hash mismatch detected"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+fi
+
+# Create ACK file
+ACK_DIR="acks"
+mkdir -p "$ACK_DIR"
+ACK_FILE="$ACK_DIR/$HANDOFF_ID.$AGENT_NAME.json"
+
+cat > "$ACK_FILE" << EOF
+{
+  "ack_for": "$HANDOFF_ID",
+  "from_agent": "$AGENT_NAME",
+  "hash_match": $HASH_MATCH,
+  "notes": "$NOTES",
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verified_hash": "$COMPUTED_HASH"
+}
+EOF
+
+echo "✅ ACK created: $ACK_FILE"
+
+if [[ "$HASH_MATCH" == "true" ]]; then
+    echo "✅ Hash verification passed"
+else
+    echo "❌ Hash verification failed - review required"
+    exit 2
+fi`;
+        }
+        
+        function getPostReceiveHook() {
+            return `#!/bin/bash
+# post-receive - VectorForge Git hook
+# Automatically processes new handoff packets
+
+set -e
+
+# Read the push information
+while read oldrev newrev refname; do
+    # Only process pushes to main branch
+    if [[ "$refname" == "refs/heads/main" ]]; then
+        echo "🔍 Processing VectorForge handoffs on main branch..."
+        
+        # Get list of new packet files
+        NEW_PACKETS=$(git diff --name-only "$oldrev" "$newrev" | grep 'packets/H-.*\\.jsonUnique handoff identifier"
+    },
+    "from_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Source agent name"
+    },
+    "to_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Target agent name"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Handoff round number"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["fast_path", "review_path"],
+      "description": "Processing lane"
+    },
+    "auto_merge_eligible": {
+      "type": "boolean",
+      "description": "Whether this handoff can be auto-merged"
+    },
+    "risk_assessment": {
+      "type": "string",
+      "enum": ["low", "high"],
+      "description": "Risk level assessment"
+    },
+    "always_keep": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Non-negotiable constraints"
+    },
+    "always_keep_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of always_keep array"
+    },
+    "scope_delta": {
+      "type": "string",
+      "enum": ["none", "budget change", "timeline change", "deps change"],
+      "description": "Type of scope change"
+    },
+    "workspace_section": {
+      "type": "string",
+      "pattern": "^sections/[^\\n]+\\.md$",
+      "description": "Reference to workspace section file"
+    },
+    "work_done": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Summary of completed work"
+    },
+    "next_tasks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Tasks for the receiving agent"
+    },
+    "attention_required": {
+      "type": "boolean",
+      "description": "Whether human attention is required"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "low"],
+      "description": "Agent confidence in the work"
+    },
+    "hash_verification": {
+      "type": "string",
+      "enum": ["pass", "fail"],
+      "description": "Hash verification status"
+    },
+    "cross_project_dependencies": {
+      "type": "boolean",
+      "description": "Whether this affects other projects"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of handoff"
+    },
+    "verification_signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of workspace section content"
+    }
+  },
+  "additionalProperties": false
+}</div>
+            </div>
+            
+            <!-- Hasher Tab -->
+            <div id="hasher" class="tab-content">
+                <h2>Canonical Hasher</h2>
+                <p>Consistent SHA256 hashing for context verification.</p>
+                
+                <div class="file-header">
+                    hasher/vf-hash
+                    <button class="download-btn" onclick="downloadFile('vf-hash', getHasherScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-hash - VectorForge canonical hasher
+# Usage: vf-hash <file>
+
+set -e
+
+FILE="$1"
+
+if [[ -z "$FILE" ]]; then
+    echo "Usage: vf-hash <file>"
+    exit 1
+fi
+
+if [[ ! -f "$FILE" ]]; then
+    echo "Error: File not found: $FILE"
+    exit 1
+fi
+
+# Canonical normalization rules:
+# 1. UTF-8 encoding (assume input is UTF-8)
+# 2. LF line endings
+# 3. Trim trailing whitespace per line
+# 4. No other normalization
+
+# Create temporary file for normalization
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+
+# Process file with canonical rules
+sed 's/[[:space:]]*$//' "$FILE" | \
+sed 's/\r$//' > "$TEMP_FILE"
+
+# Compute SHA256 hash
+HASH=$(sha256sum "$TEMP_FILE" | cut -d' ' -f1)
+
+echo "$HASH"</div>
+            </div>
+            
+            <!-- Lane Engine Tab -->
+            <div id="lane-engine" class="tab-content">
+                <h2>Lane Engine</h2>
+                <p>Automated lane determination based on packet content and project state.</p>
+                
+                <div class="file-header">
+                    lane_engine/vf-lane
+                    <button class="download-btn" onclick="downloadFile('vf-lane', getLaneEngineScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-lane - VectorForge lane engine
+# Usage: vf-lane <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-lane <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Extract packet data
+LANE=$(jq -r '.lane' "$PACKET_FILE")
+SCOPE_DELTA=$(jq -r '.scope_delta' "$PACKET_FILE")
+ATTENTION_REQUIRED=$(jq -r '.attention_required' "$PACKET_FILE")
+CONFIDENCE_LEVEL=$(jq -r '.confidence_level' "$PACKET_FILE")
+HASH_VERIFICATION=$(jq -r '.hash_verification' "$PACKET_FILE")
+CROSS_DEPS=$(jq -r '.cross_project_dependencies' "$PACKET_FILE")
+ROUND=$(jq -r '.round' "$PACKET_FILE")
+
+# Project directory and state
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+
+# Check for previous packets to compare always_keep
+PACKETS_DIR="$PROJECT_DIR/packets"
+PREVIOUS_PACKETS=($(ls "$PACKETS_DIR"/H-*.json 2>/dev/null | sort -V | head -n -1))
+
+ALWAYS_KEEP_CHANGED=false
+if [[ ${#PREVIOUS_PACKETS[@]} -gt 0 ]]; then
+    LATEST_PREVIOUS="${PREVIOUS_PACKETS[-1]}"
+    CURRENT_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+    PREVIOUS_AK_HASH=$(jq -r '.always_keep_hash' "$LATEST_PREVIOUS")
+    
+    if [[ "$CURRENT_AK_HASH" != "$PREVIOUS_AK_HASH" ]]; then
+        ALWAYS_KEEP_CHANGED=true
+    fi
+fi
+
+# Check for mandatory review (every 10th handoff)
+MANDATORY_REVIEW=false
+if (( ROUND % 10 == 0 )); then
+    MANDATORY_REVIEW=true
+fi
+
+# Lane determination logic
+FINAL_LANE="fast_path"
+
+# Force review_path conditions
+if [[ "$ALWAYS_KEEP_CHANGED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (always_keep modified)" >&2
+elif [[ "$SCOPE_DELTA" != "none" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (scope change: $SCOPE_DELTA)" >&2
+elif [[ "$ATTENTION_REQUIRED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (attention required)" >&2
+elif [[ "$CONFIDENCE_LEVEL" == "low" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (low confidence)" >&2
+elif [[ "$HASH_VERIFICATION" == "fail" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (hash verification failed)" >&2
+elif [[ "$CROSS_DEPS" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (cross-project dependencies)" >&2
+elif [[ "$MANDATORY_REVIEW" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (mandatory 10th handoff review)" >&2
+else
+    echo "# Lane: fast_path (all conditions met)" >&2
+fi
+
+# Verify packet lane matches computed lane
+PACKET_LANE=$(jq -r '.lane' "$PACKET_FILE")
+if [[ "$PACKET_LANE" != "$FINAL_LANE" ]]; then
+    echo "Warning: Packet declares lane '$PACKET_LANE' but computed lane is '$FINAL_LANE'" >&2
+fi
+
+echo "$FINAL_LANE"
+exit 0</div>
+            </div>
+            
+            <!-- Merge Bot Tab -->
+            <div id="merge-bot" class="tab-content">
+                <h2>Merge Bot</h2>
+                <p>Automated Git operations for fast path merges and review path PRs.</p>
+                
+                <div class="file-header">
+                    merge_bot/vf-merge
+                    <button class="download-btn" onclick="downloadFile('vf-merge', getMergeBotScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-merge - VectorForge merge bot
+# Usage: vf-merge <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-merge <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Validate packet first
+if ! vf-validate "$PACKET_FILE"; then
+    echo "❌ Packet validation failed"
+    exit 1
+fi
+
+# Determine lane
+LANE=$(vf-lane "$PACKET_FILE")
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+FROM_AGENT=$(jq -r '.from_agent' "$PACKET_FILE")
+TO_AGENT=$(jq -r '.to_agent' "$PACKET_FILE")
+WORK_DONE=$(jq -r '.work_done' "$PACKET_FILE")
+
+# Ensure we're in the project directory
+cd "$PROJECT_DIR"
+
+# Create audit log entry
+AUDIT_LOG="handoff-audit.log"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "$TIMESTAMP $HANDOFF_ID $LANE processing" >> "$AUDIT_LOG"
+
+if [[ "$LANE" == "fast_path" ]]; then
+    echo "🚀 Fast path: Auto-merging $HANDOFF_ID"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🤖 Auto-merge $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: fast_path
+Auto-merged by VectorForge"
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE auto-merged" >> "$AUDIT_LOG"
+    echo "✅ Auto-merge completed"
+    
+elif [[ "$LANE" == "review_path" ]]; then
+    echo "🔍 Review path: Creating PR for $HANDOFF_ID"
+    
+    # Create feature branch
+    BRANCH_NAME="handoff/$HANDOFF_ID"
+    git checkout -b "$BRANCH_NAME"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🔍 Review required: $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: review_path
+Requires steward approval"
+    
+    # Push branch
+    git push -u origin "$BRANCH_NAME"
+    
+    # Create PR (if GitHub CLI is available)
+    if command -v gh &> /dev/null; then
+        gh pr create \
+            --title "🔍 Handoff $HANDOFF_ID: $FROM_AGENT → $TO_AGENT" \
+            --body "**Handoff ID:** $HANDOFF_ID
+**Lane:** review_path
+**From:** $FROM_AGENT
+**To:** $TO_AGENT
+
+**Work Done:**
+$WORK_DONE
+
+**Review Required:** This handoff requires steward approval due to:
+- Critical constraint changes
+- Scope modifications
+- Agent uncertainty
+- Mandatory review cycle
+
+**Next Steps:**
+1. Review the changes in the diff
+2. Verify all 'Always Keep' constraints are preserved
+3. Approve or request changes
+4. Merge when ready" \
+            --label "needs-steward-review" \
+            --assignee "@me"
+        
+        echo "✅ Pull request created"
+    else
+        echo "ℹ️  GitHub CLI not available. Manual PR creation required."
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Please create PR manually for steward review."
+    fi
+    
+    # Return to main branch
+    git checkout main
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE pr-created" >> "$AUDIT_LOG"
+    echo "✅ Review path processing completed"
+    
+else
+    echo "❌ Unknown lane: $LANE"
+    exit 1
+fi
+
+echo "📊 Audit log updated: $AUDIT_LOG"</div>
+                
+                <div class="file-header">
+                    merge_bot/vf-ack
+                    <button class="download-btn" onclick="downloadFile('vf-ack', getAckScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-ack - VectorForge acknowledgment creator
+# Usage: vf-ack <handoff-id> <agent-name> [notes]
+
+set -e
+
+HANDOFF_ID="$1"
+AGENT_NAME="$2"
+NOTES="${3:-}"
+
+if [[ -z "$HANDOFF_ID" || -z "$AGENT_NAME" ]]; then
+    echo "Usage: vf-ack <handoff-id> <agent-name> [notes]"
+    echo "Example: vf-ack H-001 chatgpt 'Proceeding with implementation'"
+    exit 1
+fi
+
+# Find project directory (assume we're in it or can find packets/)
+if [[ -d "packets" ]]; then
+    PROJECT_DIR="."
+else
+    echo "Error: Must be run from project directory (containing packets/ folder)"
+    exit 1
+fi
+
+# Find the corresponding packet
+PACKET_FILE="packets/$HANDOFF_ID.json"
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Verify hash of workspace section
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "Error: Workspace section not found: $SECTION_FILE"
+    exit 1
+fi
+
+# Compute hash and compare
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+HASH_MATCH=true
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    HASH_MATCH=false
+    echo "⚠️  Warning: Hash mismatch detected"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+fi
+
+# Create ACK file
+ACK_DIR="acks"
+mkdir -p "$ACK_DIR"
+ACK_FILE="$ACK_DIR/$HANDOFF_ID.$AGENT_NAME.json"
+
+cat > "$ACK_FILE" << EOF
+{
+  "ack_for": "$HANDOFF_ID",
+  "from_agent": "$AGENT_NAME",
+  "hash_match": $HASH_MATCH,
+  "notes": "$NOTES",
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verified_hash": "$COMPUTED_HASH"
+}
+EOF
+
+echo "✅ ACK created: $ACK_FILE"
+
+if [[ "$HASH_MATCH" == "true" ]]; then
+    echo "✅ Hash verification passed"
+else
+    echo "❌ Hash verification failed - review required"
+    exit 2
+fi</div>
+            </div>
+            
+            <!-- Git Hooks Tab -->
+            <div id="hooks" class="tab-content">
+                <h2>Git Hooks</h2>
+                <p>Automated validation and processing triggers.</p>
+                
+                <div class="file-header">
+                    hooks/post-receive
+                    <button class="download-btn" onclick="downloadFile('post-receive', getPostReceiveHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# post-receive - VectorForge Git hook
+# Automatically processes new handoff packets
+
+set -e
+
+# Read the push information
+while read oldrev newrev refname; do
+    # Only process pushes to main branch
+    if [[ "$refname" == "refs/heads/main" ]]; then
+        echo "🔍 Processing VectorForge handoffs on main branch..."
+        
+        # Get list of new packet files
+        NEW_PACKETS=$(git diff --name-only "$oldrev" "$newrev" | grep 'packets/H-.*\.json$' || true)
+        
+        if [[ -n "$NEW_PACKETS" ]]; then
+            echo "📦 New packets detected:"
+            echo "$NEW_PACKETS"
+            
+            # Process each new packet
+            while IFS= read -r packet; do
+                if [[ -n "$packet" ]]; then
+                    echo "🔄 Processing $packet..."
+                    
+                    # Validate the packet
+                    if vf-validate "$packet"; then
+                        echo "✅ Validation passed for $packet"
+                        
+                        # Determine and execute lane logic
+                        LANE=$(vf-lane "$packet")
+                        echo "🛤️  Lane determined: $LANE"
+                        
+                        # Execute merge logic
+                        if vf-merge "$packet"; then
+                            echo "✅ Successfully processed $packet"
+                        else
+                            echo "❌ Failed to process $packet"
+                        fi
+                    else
+                        echo "❌ Validation failed for $packet"
+                    fi
+                fi
+            done <<< "$NEW_PACKETS"
+        else
+            echo "ℹ️  No new handoff packets in this push"
+        fi
+    fi
+done
+
+echo "🎉 Post-receive processing complete"</div>
+                
+                <div class="file-header">
+                    hooks/pre-commit
+                    <button class="download-btn" onclick="downloadFile('pre-commit', getPreCommitHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# pre-commit - VectorForge validation hook
+# Validates packets before they are committed
+
+set -e
+
+echo "🔍 VectorForge pre-commit validation..."
+
+# Get list of staged packet files
+STAGED_PACKETS=$(git diff --cached --name-only | grep 'packets/H-.*\.json$' || true)
+
+if [[ -z "$STAGED_PACKETS" ]]; then
+    echo "ℹ️  No handoff packets to validate"
+    exit 0
+fi
+
+echo "📦 Validating staged packets:"
+echo "$STAGED_PACKETS"
+
+VALIDATION_FAILED=false
+
+# Validate each staged packet
+while IFS= read -r packet; do
+    if [[ -n "$packet" ]]; then
+        echo "🔄 Validating $packet..."
+        
+        if [[ -f "$packet" ]]; then
+            if vf-validate "$packet"; then
+                echo "✅ $packet is valid"
+            else
+                echo "❌ $packet validation failed"
+                VALIDATION_FAILED=true
+            fi
+        else
+            echo "❌ $packet not found (deleted?)"
+        fi
+    fi
+done <<< "$STAGED_PACKETS"
+
+if [[ "$VALIDATION_FAILED" == "true" ]]; then
+    echo ""
+    echo "❌ Commit blocked: One or more packet validations failed"
+    echo "   Please fix the validation errors before committing"
+    exit 1
+fi
+
+echo "✅ All packets validated successfully"</div>
+            </div>
+            
+            <!-- Setup Tab -->
+            <div id="setup" class="tab-content">
+                <h2>Setup & Installation</h2>
+                <p>Complete setup guide for VectorForge MVP.</p>
+                
+                <h3>📋 Prerequisites</h3>
+                <ul>
+                    <li><strong>Git:</strong> Version 2.0 or higher</li>
+                    <li><strong>Node.js:</strong> For JSON schema validation (ajv-cli)</li>
+                    <li><strong>jq:</strong> JSON processing tool</li>
+                    <li><strong>GitHub CLI (optional):</strong> For automated PR creation</li>
+                </ul>
+                
+                <h3>🚀 Installation Steps</h3>
+                <div class="code-block bash">
+# 1. Clone the repository
+git clone https://github.com/your-org/vectorforge-mvp
+cd vectorforge-mvp
+
+# 2. Install dependencies
+npm install -g ajv-cli
+
+# 3. Make scripts executable
+chmod +x validator/vf-validate
+chmod +x hasher/vf-hash
+chmod +x lane_engine/vf-lane
+chmod +x merge_bot/vf-merge
+chmod +x merge_bot/vf-ack
+
+# 4. Add to PATH
+export PATH=$PATH:$(pwd)/validator:$(pwd)/hasher:$(pwd)/lane_engine:$(pwd)/merge_bot
+
+# 5. Install Git hooks (optional)
+cp hooks/pre-commit .git/hooks/
+cp hooks/post-receive .git/hooks/
+chmod +x .git/hooks/pre-commit .git/hooks/post-receive
+
+# 6. Verify installation
+vf-validate --help
+vf-hash --help
+vf-lane --help
+vf-merge --help
+vf-ack --help</div>
+                
+                <h3>🏗️ Project Structure Setup</h3>
+                <div class="code-block bash">
+# Create a new project
+mkdir -p projects/my-project/{sections,packets,logs,acks}
+
+# Initialize living document
+cat > projects/my-project/living-doc.md << 'EOF'
+# My Project - Living Document
+
+## Overview
+Project description and goals.
+
+## Always Keep
+- Critical constraint 1
+- Critical constraint 2
+
+## Current Status
+Work in progress...
+EOF
+
+# Create first section
+cat > projects/my-project/sections/section-1.md << 'EOF'
+# Section 1 - Project Initialization
+
+## Work Done
+- Project structure created
+- Initial requirements defined
+
+## Next Steps
+- Begin development phase
+EOF
+
+# Initialize git
+cd projects/my-project
+git init
+git add .
+git commit -m "Initial project setup"</div>
+                
+                <h3>⚙️ Configuration</h3>
+                <p>VectorForge uses convention over configuration. The main settings are:</p>
+                <ul>
+                    <li><strong>Project Layout:</strong> Fixed structure under <code>projects/</code></li>
+                    <li><strong>Hash Algorithm:</strong> SHA256 with canonical normalization</li>
+                    <li><strong>Lane Rules:</strong> Automated based on packet content</li>
+                    <li><strong>Review Frequency:</strong> Every 10th handoff + triggered conditions</li>
+                </ul>
+                
+                <h3>🔧 Environment Variables</h3>
+                <div class="code-block bash">
+# Optional environment variables
+export VECTORFORGE_LOG_LEVEL=INFO      # DEBUG, INFO, WARN, ERROR
+export VECTORFORGE_AUTO_PUSH=true      # Auto-push after merge
+export VECTORFORGE_REQUIRE_ACK=true    # Require ACK files</div>
+            </div>
+            
+            <!-- Smoke Test Tab -->
+            <div id="smoke-test" class="tab-content">
+                <h2>Smoke Test</h2>
+                <p>End-to-end validation of the VectorForge system.</p>
+                
+                <div class="file-header">
+                    smoke-test.sh
+                    <button class="download-btn" onclick="downloadFile('smoke-test.sh', getSmokeTestScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# smoke-test.sh - VectorForge MVP smoke test
+# Tests the complete handoff chain: Claude → ChatGPT → Gemini
+
+set -e
+
+echo "🧪 VectorForge MVP Smoke Test"
+echo "=============================="
+
+# Setup test environment
+TEST_PROJECT="user-auth-api-test"
+TEST_DIR="projects/$TEST_PROJECT"
+
+echo "🏗️  Setting up test project: $TEST_PROJECT"
+
+# Clean up any existing test
+rm -rf "$TEST_DIR"
+
+# Create test project structure
+mkdir -p "$TEST_DIR"/{sections,packets,logs,acks}
+
+# Create living document
+cat > "$TEST_DIR/living-doc.md" << 'EOF'
+# User Auth API - Living Document
+
+## Overview
+Building a secure user authentication API with modern best practices.
+
+## Always Keep
+- Use PostgreSQL for user data
+- Budget cap: $5,000
+- Launch deadline: September 1, 2025
+- Must follow OWASP security guidelines
+
+## Current Status
+Project initialized, ready for development.
+EOF
+
+# Create initial section
+cat > "$TEST_DIR/sections/section-1.md" << 'EOF'
+# Section 1 - Project Foundation
+
+## Project Overview
+User authentication API with secure registration, login, and session management.
+
+## Requirements Analysis
+- JWT-based authentication
+- Password hashing with bcrypt
+- Rate limiting for security
+- PostgreSQL database backend
+- RESTful API design
+
+## Initial Architecture
+- Node.js with Express framework
+- PostgreSQL database
+- Redis for session storage
+- Docker containerization
+
+## Next Phase
+Begin detailed API design and endpoint specification.
+EOF
+
+cd "$TEST_DIR"
+git init --quiet
+git add .
+git commit --quiet -m "Initial project setup"
+
+echo "✅ Test project created"
+
+# Test 1: Claude → ChatGPT (Fast Path)
+echo ""
+echo "🔄 Test 1: Claude → ChatGPT (Fast Path)"
+echo "======================================"
+
+# Create Claude's handoff packet
+CLAUDE_PACKET="packets/H-001.json"
+WORKSPACE_HASH=$(vf-hash "sections/section-1.md")
+ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $5,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$CLAUDE_PACKET" << EOF
+{
+  "handoff_id": "H-001",
+  "from_agent": "claude",
+  "to_agent": "chatgpt",
+  "round": 1,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-1.md",
+  "work_done": "Completed initial project analysis and architecture planning. Defined core requirements and technology stack.",
+  "next_tasks": [
+    "Design detailed API endpoints and request/response schemas",
+    "Create database schema for user management",
+    "Implement basic Express.js server structure"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH"
+}
+EOF
+
+echo "📝 Claude's packet created"
+
+# Validate Claude's packet
+echo "🔍 Validating Claude's packet..."
+if vf-validate "$CLAUDE_PACKET"; then
+    echo "✅ Claude's packet is valid"
+else
+    echo "❌ Claude's packet validation failed"
+    exit 1
+fi
+
+# Check lane determination
+CLAUDE_LANE=$(vf-lane "$CLAUDE_PACKET")
+if [[ "$CLAUDE_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CLAUDE_LANE"
+    exit 1
+fi
+
+# Create Claude's log
+cat > "logs/H-001.md" << 'EOF'
+# Log Note - Handoff H-001
+
+What changed:
+- Analyzed project requirements thoroughly
+- Designed initial system architecture
+- Selected technology stack (Node.js, PostgreSQL, Redis)
+- Documented security requirements
+
+Why we chose this:
+- Node.js provides excellent JSON handling and async support
+- PostgreSQL offers robust data integrity and security features
+- Redis enables fast session management
+- Architecture follows industry best practices
+
+Risks / unknowns:
+- Need to validate PostgreSQL schema design
+- Rate limiting implementation needs careful tuning
+- Docker configuration may need optimization
+
+What I need from you next:
+- Design specific API endpoints with detailed schemas
+- Create comprehensive database schema
+- Implement basic server structure with error handling
+
+Links / artifacts:
+- sections/section-1.md (updated architecture)
+- Project requirements document
+EOF
+
+git add .
+git commit --quiet -m "Claude H-001: Initial analysis and architecture"
+
+echo "✅ Claude's work committed"
+
+# Create ChatGPT's ACK
+echo "📥 Creating ChatGPT's ACK..."
+if vf-ack "H-001" "chatgpt" "Received Claude's analysis. Architecture looks solid, proceeding with API design."; then
+    echo "✅ ChatGPT's ACK created"
+else
+    echo "❌ ChatGPT's ACK creation failed"
+    exit 1
+fi
+
+# Test 2: ChatGPT → Gemini (Fast Path)
+echo ""
+echo "🔄 Test 2: ChatGPT → Gemini (Fast Path)"
+echo "====================================="
+
+# Update section with ChatGPT's work
+cat > "sections/section-2.md" << 'EOF'
+# Section 2 - API Design & Implementation
+
+## API Endpoints Designed
+
+### Authentication Endpoints
+- POST /api/auth/register - User registration
+- POST /api/auth/login - User login
+- POST /api/auth/logout - User logout
+- GET /api/auth/me - Get current user info
+
+### User Management
+- GET /api/users/profile - Get user profile
+- PUT /api/users/profile - Update user profile
+- DELETE /api/users/account - Delete user account
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+```
+
+### Sessions Table
+```sql
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id INTEGER REFERENCES users(id),
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Implementation Started
+- Express.js server with middleware setup
+- Password hashing with bcrypt
+- JWT token generation and validation
+- Basic error handling and logging
+
+## Next Phase
+Need comprehensive testing strategy and documentation.
+EOF
+
+# Create ChatGPT's handoff packet
+CHATGPT_PACKET="packets/H-002.json"
+WORKSPACE_HASH_2=$(vf-hash "sections/section-2.md")
+
+cat > "$CHATGPT_PACKET" << EOF
+{
+  "handoff_id": "H-002",
+  "from_agent": "chatgpt",
+  "to_agent": "gemini",
+  "round": 2,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-2.md",
+  "work_done": "Designed complete API endpoint structure, created database schema, and implemented core authentication logic with Express.js and bcrypt.",
+  "next_tasks": [
+    "Create comprehensive API documentation",
+    "Design testing strategy with unit and integration tests",
+    "Write deployment guide and setup instructions"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_2"
+}
+EOF
+
+echo "📝 ChatGPT's packet created"
+
+# Validate and process
+if vf-validate "$CHATGPT_PACKET"; then
+    echo "✅ ChatGPT's packet is valid"
+else
+    echo "❌ ChatGPT's packet validation failed"
+    exit 1
+fi
+
+CHATGPT_LANE=$(vf-lane "$CHATGPT_PACKET")
+if [[ "$CHATGPT_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CHATGPT_LANE"
+    exit 1
+fi
+
+# Create ChatGPT's log
+cat > "logs/H-002.md" << 'EOF'
+# Log Note - Handoff H-002
+
+What changed:
+- Designed complete REST API with 7 endpoints
+- Created PostgreSQL database schema for users and sessions
+- Implemented Express.js server with authentication middleware
+- Added bcrypt password hashing and JWT token management
+
+Why we chose this:
+- RESTful design follows standard conventions
+- Database schema is normalized and secure
+- JWT tokens provide stateless authentication
+- bcrypt offers industry-standard password protection
+
+Risks / unknowns:
+- API documentation needs to be comprehensive for adoption
+- Testing coverage requirements need definition
+- Deployment strategy needs container orchestration details
+
+What I need from you next:
+- Create user-friendly API documentation
+- Design comprehensive testing approach
+- Write clear deployment and maintenance guides
+
+Links / artifacts:
+- sections/section-2.md (complete implementation)
+- Database migration scripts
+- Server configuration files
+EOF
+
+git add .
+git commit --quiet -m "ChatGPT H-002: API design and implementation"
+
+# Create Gemini's ACK
+if vf-ack "H-002" "gemini" "Excellent implementation! Ready to create documentation and testing strategy."; then
+    echo "✅ Gemini's ACK created"
+else
+    echo "❌ Gemini's ACK creation failed"
+    exit 1
+fi
+
+# Test 3: Gemini with Always Keep Change (Review Path)
+echo ""
+echo "🔄 Test 3: Gemini with Constraint Change (Review Path)"
+echo "=================================================="
+
+# Update section with Gemini's work
+cat > "sections/section-3.md" << 'EOF'
+# Section 3 - Documentation & Testing Strategy
+
+## API Documentation Created
+Comprehensive OpenAPI 3.0 specification with:
+- Interactive Swagger UI interface
+- Detailed request/response schemas
+- Authentication flow examples
+- Error handling documentation
+- Rate limiting explanations
+
+## Testing Strategy Implemented
+
+### Unit Tests
+- Authentication middleware tests
+- Password hashing validation
+- JWT token generation/validation
+- Database model tests
+
+### Integration Tests
+- Full API endpoint testing
+- Database transaction testing
+- Session management validation
+- Error scenario handling
+
+### Security Testing
+- SQL injection prevention
+- XSS protection validation
+- Rate limiting effectiveness
+- Password strength requirements
+
+## Deployment Documentation
+- Docker containerization guide
+- Environment configuration
+- Database setup and migrations
+- Production security checklist
+- Monitoring and logging setup
+
+## Performance Optimization
+Analysis shows current implementation can handle 1000+ concurrent users,
+but for scalability beyond 5000 users, we recommend:
+- Database connection pooling optimization
+- Redis cluster setup for sessions
+- Load balancer configuration
+- CDN integration for static assets
+
+## Budget Impact Analysis
+Current implementation is well within budget, but scaling recommendations
+would require additional infrastructure investment of approximately $2,000/month
+for high-traffic scenarios.
+EOF
+
+# Create Gemini's packet with budget change (triggers review path)
+GEMINI_PACKET="packets/H-003.json"
+WORKSPACE_HASH_3=$(vf-hash "sections/section-3.md")
+NEW_ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $7,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$GEMINI_PACKET" << EOF
+{
+  "handoff_id": "H-003",
+  "from_agent": "gemini",
+  "to_agent": "claude",
+  "round": 3,
+  "lane": "review_path",
+  "auto_merge_eligible": false,
+  "risk_assessment": "high",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$7,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$NEW_ALWAYS_KEEP_HASH",
+  "scope_delta": "budget change",
+  "workspace_section": "sections/section-3.md",
+  "work_done": "Created comprehensive documentation, testing strategy, and deployment guides. Identified scaling requirements that necessitate budget adjustment for high-traffic scenarios.",
+  "next_tasks": [
+    "Review and approve budget increase to \$7,000 for scaling infrastructure",
+    "Implement performance optimizations based on analysis",
+    "Finalize deployment pipeline and monitoring setup"
+  ],
+  "attention_required": true,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_3"
+}
+EOF
+
+echo "📝 Gemini's packet created (with budget change)"
+
+# Validate and check lane
+if vf-validate "$GEMINI_PACKET"; then
+    echo "✅ Gemini's packet is valid"
+else
+    echo "❌ Gemini's packet validation failed"
+    exit 1
+fi
+
+GEMINI_LANE=$(vf-lane "$GEMINI_PACKET")
+if [[ "$GEMINI_LANE" == "review_path" ]]; then
+    echo "✅ Lane correctly determined: review_path (budget change detected)"
+else
+    echo "❌ Expected review_path, got: $GEMINI_LANE"
+    exit 1
+fi
+
+# Test Results Summary
+echo ""
+echo "🎉 Smoke Test Results"
+echo "===================="
+echo "✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED"
+echo "✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED"
+echo "✅ Test 3: Gemini Budget Change (Review Path) - PASSED"
+echo ""
+echo "🔍 Verification Summary:"
+echo "✅ All packets validated successfully"
+echo "✅ Lane determination working correctly"
+echo "✅ Hash verification functioning"
+echo "✅ ACK generation working"
+echo "✅ Always Keep constraint monitoring active"
+echo "✅ Review path triggered for budget changes"
+echo ""
+echo "📊 Test Project Created: $TEST_DIR"
+echo "🎯 VectorForge MVP is fully functional!"
+
+# Clean up
+cd ../..
+echo ""
+echo "🧹 Smoke test completed successfully"
+echo "   Test project preserved at: $TEST_DIR"
+echo "   Review the generated files to see the complete handoff chain"</div>
+                
+                <h3>🎯 Running the Smoke Test</h3>
+                <div class="code-block bash">
+# Run the complete smoke test
+./smoke-test.sh
+
+# Expected output:
+# ✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED
+# ✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED  
+# ✅ Test 3: Gemini Budget Change (Review Path) - PASSED</div>
+                
+                <h3>🔧 Manual Testing Commands</h3>
+                <div class="code-block bash">
+# Test individual components
+vf-validate projects/user-auth-api/packets/H-001.json
+vf-hash projects/user-auth-api/sections/section-1.md
+vf-lane projects/user-auth-api/packets/H-001.json
+vf-ack H-001 chatgpt "Test acknowledgment"
+
+# Test full workflow
+cd projects/user-auth-api
+vf-merge packets/H-001.json</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+        
+        function downloadFile(filename, content, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function getValidatorScript() {
+            return `#!/bin/bash
+# vf-validate - VectorForge packet validator
+# Usage: vf-validate <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCHEMA_FILE="$SCRIPT_DIR/packet-schema.json"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-validate <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+if [[ ! -f "$SCHEMA_FILE" ]]; then
+    echo "Error: Schema file not found: $SCHEMA_FILE"
+    exit 1
+fi
+
+# JSON Schema validation
+if ! command -v ajv &> /dev/null; then
+    echo "Error: ajv-cli not installed. Run: npm install -g ajv-cli"
+    exit 1
+fi
+
+echo "🔍 Validating JSON schema..."
+if ! ajv validate -s "$SCHEMA_FILE" -d "$PACKET_FILE"; then
+    echo "❌ Schema validation failed"
+    exit 1
+fi
+
+echo "✅ Schema validation passed"
+
+# Semantic validation
+echo "🔍 Validating semantics..."
+
+# Extract project directory
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+
+# Check if living document exists
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$PROJECT_DIR/$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "❌ Workspace section not found: $SECTION_FILE"
+    exit 3
+fi
+
+# Verify hash
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    echo "❌ Hash verification failed"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+    exit 2
+fi
+
+echo "✅ Hash verification passed"
+
+# Verify always_keep hash
+ALWAYS_KEEP_JSON=$(jq -c '.always_keep | sort' "$PACKET_FILE")
+CLAIMED_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+COMPUTED_AK_HASH=$(echo "$ALWAYS_KEEP_JSON" | sha256sum | cut -d' ' -f1)
+
+if [[ "$CLAIMED_AK_HASH" != "$COMPUTED_AK_HASH" ]]; then
+    echo "❌ Always Keep hash verification failed"
+    echo "   Claimed: $CLAIMED_AK_HASH"
+    echo "   Computed: $COMPUTED_AK_HASH"
+    exit 2
+fi
+
+echo "✅ Always Keep hash verification passed"
+
+# Check handoff ID format
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+if [[ ! "$HANDOFF_ID" =~ ^H-[0-9A-Za-z_-]+$ ]]; then
+    echo "❌ Invalid handoff ID format: $HANDOFF_ID"
+    exit 3
+fi
+
+echo "✅ Handoff ID format valid"
+
+echo "🎉 All validations passed"
+exit 0`;
+        }
+        
+        function getSchemaFile() {
+            return `{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VectorForge Handoff Packet",
+  "type": "object",
+  "required": [
+    "handoff_id", "from_agent", "to_agent", "round",
+    "lane", "auto_merge_eligible", "risk_assessment",
+    "always_keep", "always_keep_hash", "scope_delta",
+    "workspace_section", "work_done", "next_tasks",
+    "attention_required", "confidence_level", "hash_verification",
+    "cross_project_dependencies", "timestamp_utc", "verification_signature"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^H-[0-9A-Za-z_-]+$",
+      "description": " || true)
+        
+        if [[ -n "$NEW_PACKETS" ]]; then
+            echo "📦 New packets detected:"
+            echo "$NEW_PACKETS"
+            
+            # Process each new packet
+            while IFS= read -r packet; do
+                if [[ -n "$packet" ]]; then
+                    echo "🔄 Processing $packet..."
+                    
+                    # Validate the packet
+                    if vf-validate "$packet"; then
+                        echo "✅ Validation passed for $packet"
+                        
+                        # Determine and execute lane logic
+                        LANE=$(vf-lane "$packet")
+                        echo "🛤️  Lane determined: $LANE"
+                        
+                        # Execute merge logic
+                        if vf-merge "$packet"; then
+                            echo "✅ Successfully processed $packet"
+                        else
+                            echo "❌ Failed to process $packet"
+                        fi
+                    else
+                        echo "❌ Validation failed for $packet"
+                    fi
+                fi
+            done <<< "$NEW_PACKETS"
+        else
+            echo "ℹ️  No new handoff packets in this push"
+        fi
+    fi
+done
+
+echo "🎉 Post-receive processing complete"`;
+        }
+        
+        function getPreCommitHook() {
+            return `#!/bin/bash
+# pre-commit - VectorForge validation hook
+# Validates packets before they are committed
+
+set -e
+
+echo "🔍 VectorForge pre-commit validation..."
+
+# Get list of staged packet files
+STAGED_PACKETS=$(git diff --cached --name-only | grep 'packets/H-.*\\.jsonUnique handoff identifier"
+    },
+    "from_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Source agent name"
+    },
+    "to_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Target agent name"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Handoff round number"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["fast_path", "review_path"],
+      "description": "Processing lane"
+    },
+    "auto_merge_eligible": {
+      "type": "boolean",
+      "description": "Whether this handoff can be auto-merged"
+    },
+    "risk_assessment": {
+      "type": "string",
+      "enum": ["low", "high"],
+      "description": "Risk level assessment"
+    },
+    "always_keep": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Non-negotiable constraints"
+    },
+    "always_keep_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of always_keep array"
+    },
+    "scope_delta": {
+      "type": "string",
+      "enum": ["none", "budget change", "timeline change", "deps change"],
+      "description": "Type of scope change"
+    },
+    "workspace_section": {
+      "type": "string",
+      "pattern": "^sections/[^\\n]+\\.md$",
+      "description": "Reference to workspace section file"
+    },
+    "work_done": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Summary of completed work"
+    },
+    "next_tasks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Tasks for the receiving agent"
+    },
+    "attention_required": {
+      "type": "boolean",
+      "description": "Whether human attention is required"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "low"],
+      "description": "Agent confidence in the work"
+    },
+    "hash_verification": {
+      "type": "string",
+      "enum": ["pass", "fail"],
+      "description": "Hash verification status"
+    },
+    "cross_project_dependencies": {
+      "type": "boolean",
+      "description": "Whether this affects other projects"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of handoff"
+    },
+    "verification_signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of workspace section content"
+    }
+  },
+  "additionalProperties": false
+}</div>
+            </div>
+            
+            <!-- Hasher Tab -->
+            <div id="hasher" class="tab-content">
+                <h2>Canonical Hasher</h2>
+                <p>Consistent SHA256 hashing for context verification.</p>
+                
+                <div class="file-header">
+                    hasher/vf-hash
+                    <button class="download-btn" onclick="downloadFile('vf-hash', getHasherScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-hash - VectorForge canonical hasher
+# Usage: vf-hash <file>
+
+set -e
+
+FILE="$1"
+
+if [[ -z "$FILE" ]]; then
+    echo "Usage: vf-hash <file>"
+    exit 1
+fi
+
+if [[ ! -f "$FILE" ]]; then
+    echo "Error: File not found: $FILE"
+    exit 1
+fi
+
+# Canonical normalization rules:
+# 1. UTF-8 encoding (assume input is UTF-8)
+# 2. LF line endings
+# 3. Trim trailing whitespace per line
+# 4. No other normalization
+
+# Create temporary file for normalization
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+
+# Process file with canonical rules
+sed 's/[[:space:]]*$//' "$FILE" | \
+sed 's/\r$//' > "$TEMP_FILE"
+
+# Compute SHA256 hash
+HASH=$(sha256sum "$TEMP_FILE" | cut -d' ' -f1)
+
+echo "$HASH"</div>
+            </div>
+            
+            <!-- Lane Engine Tab -->
+            <div id="lane-engine" class="tab-content">
+                <h2>Lane Engine</h2>
+                <p>Automated lane determination based on packet content and project state.</p>
+                
+                <div class="file-header">
+                    lane_engine/vf-lane
+                    <button class="download-btn" onclick="downloadFile('vf-lane', getLaneEngineScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-lane - VectorForge lane engine
+# Usage: vf-lane <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-lane <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Extract packet data
+LANE=$(jq -r '.lane' "$PACKET_FILE")
+SCOPE_DELTA=$(jq -r '.scope_delta' "$PACKET_FILE")
+ATTENTION_REQUIRED=$(jq -r '.attention_required' "$PACKET_FILE")
+CONFIDENCE_LEVEL=$(jq -r '.confidence_level' "$PACKET_FILE")
+HASH_VERIFICATION=$(jq -r '.hash_verification' "$PACKET_FILE")
+CROSS_DEPS=$(jq -r '.cross_project_dependencies' "$PACKET_FILE")
+ROUND=$(jq -r '.round' "$PACKET_FILE")
+
+# Project directory and state
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+
+# Check for previous packets to compare always_keep
+PACKETS_DIR="$PROJECT_DIR/packets"
+PREVIOUS_PACKETS=($(ls "$PACKETS_DIR"/H-*.json 2>/dev/null | sort -V | head -n -1))
+
+ALWAYS_KEEP_CHANGED=false
+if [[ ${#PREVIOUS_PACKETS[@]} -gt 0 ]]; then
+    LATEST_PREVIOUS="${PREVIOUS_PACKETS[-1]}"
+    CURRENT_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+    PREVIOUS_AK_HASH=$(jq -r '.always_keep_hash' "$LATEST_PREVIOUS")
+    
+    if [[ "$CURRENT_AK_HASH" != "$PREVIOUS_AK_HASH" ]]; then
+        ALWAYS_KEEP_CHANGED=true
+    fi
+fi
+
+# Check for mandatory review (every 10th handoff)
+MANDATORY_REVIEW=false
+if (( ROUND % 10 == 0 )); then
+    MANDATORY_REVIEW=true
+fi
+
+# Lane determination logic
+FINAL_LANE="fast_path"
+
+# Force review_path conditions
+if [[ "$ALWAYS_KEEP_CHANGED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (always_keep modified)" >&2
+elif [[ "$SCOPE_DELTA" != "none" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (scope change: $SCOPE_DELTA)" >&2
+elif [[ "$ATTENTION_REQUIRED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (attention required)" >&2
+elif [[ "$CONFIDENCE_LEVEL" == "low" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (low confidence)" >&2
+elif [[ "$HASH_VERIFICATION" == "fail" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (hash verification failed)" >&2
+elif [[ "$CROSS_DEPS" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (cross-project dependencies)" >&2
+elif [[ "$MANDATORY_REVIEW" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (mandatory 10th handoff review)" >&2
+else
+    echo "# Lane: fast_path (all conditions met)" >&2
+fi
+
+# Verify packet lane matches computed lane
+PACKET_LANE=$(jq -r '.lane' "$PACKET_FILE")
+if [[ "$PACKET_LANE" != "$FINAL_LANE" ]]; then
+    echo "Warning: Packet declares lane '$PACKET_LANE' but computed lane is '$FINAL_LANE'" >&2
+fi
+
+echo "$FINAL_LANE"
+exit 0</div>
+            </div>
+            
+            <!-- Merge Bot Tab -->
+            <div id="merge-bot" class="tab-content">
+                <h2>Merge Bot</h2>
+                <p>Automated Git operations for fast path merges and review path PRs.</p>
+                
+                <div class="file-header">
+                    merge_bot/vf-merge
+                    <button class="download-btn" onclick="downloadFile('vf-merge', getMergeBotScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-merge - VectorForge merge bot
+# Usage: vf-merge <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-merge <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Validate packet first
+if ! vf-validate "$PACKET_FILE"; then
+    echo "❌ Packet validation failed"
+    exit 1
+fi
+
+# Determine lane
+LANE=$(vf-lane "$PACKET_FILE")
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+FROM_AGENT=$(jq -r '.from_agent' "$PACKET_FILE")
+TO_AGENT=$(jq -r '.to_agent' "$PACKET_FILE")
+WORK_DONE=$(jq -r '.work_done' "$PACKET_FILE")
+
+# Ensure we're in the project directory
+cd "$PROJECT_DIR"
+
+# Create audit log entry
+AUDIT_LOG="handoff-audit.log"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "$TIMESTAMP $HANDOFF_ID $LANE processing" >> "$AUDIT_LOG"
+
+if [[ "$LANE" == "fast_path" ]]; then
+    echo "🚀 Fast path: Auto-merging $HANDOFF_ID"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🤖 Auto-merge $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: fast_path
+Auto-merged by VectorForge"
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE auto-merged" >> "$AUDIT_LOG"
+    echo "✅ Auto-merge completed"
+    
+elif [[ "$LANE" == "review_path" ]]; then
+    echo "🔍 Review path: Creating PR for $HANDOFF_ID"
+    
+    # Create feature branch
+    BRANCH_NAME="handoff/$HANDOFF_ID"
+    git checkout -b "$BRANCH_NAME"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🔍 Review required: $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: review_path
+Requires steward approval"
+    
+    # Push branch
+    git push -u origin "$BRANCH_NAME"
+    
+    # Create PR (if GitHub CLI is available)
+    if command -v gh &> /dev/null; then
+        gh pr create \
+            --title "🔍 Handoff $HANDOFF_ID: $FROM_AGENT → $TO_AGENT" \
+            --body "**Handoff ID:** $HANDOFF_ID
+**Lane:** review_path
+**From:** $FROM_AGENT
+**To:** $TO_AGENT
+
+**Work Done:**
+$WORK_DONE
+
+**Review Required:** This handoff requires steward approval due to:
+- Critical constraint changes
+- Scope modifications
+- Agent uncertainty
+- Mandatory review cycle
+
+**Next Steps:**
+1. Review the changes in the diff
+2. Verify all 'Always Keep' constraints are preserved
+3. Approve or request changes
+4. Merge when ready" \
+            --label "needs-steward-review" \
+            --assignee "@me"
+        
+        echo "✅ Pull request created"
+    else
+        echo "ℹ️  GitHub CLI not available. Manual PR creation required."
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Please create PR manually for steward review."
+    fi
+    
+    # Return to main branch
+    git checkout main
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE pr-created" >> "$AUDIT_LOG"
+    echo "✅ Review path processing completed"
+    
+else
+    echo "❌ Unknown lane: $LANE"
+    exit 1
+fi
+
+echo "📊 Audit log updated: $AUDIT_LOG"</div>
+                
+                <div class="file-header">
+                    merge_bot/vf-ack
+                    <button class="download-btn" onclick="downloadFile('vf-ack', getAckScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-ack - VectorForge acknowledgment creator
+# Usage: vf-ack <handoff-id> <agent-name> [notes]
+
+set -e
+
+HANDOFF_ID="$1"
+AGENT_NAME="$2"
+NOTES="${3:-}"
+
+if [[ -z "$HANDOFF_ID" || -z "$AGENT_NAME" ]]; then
+    echo "Usage: vf-ack <handoff-id> <agent-name> [notes]"
+    echo "Example: vf-ack H-001 chatgpt 'Proceeding with implementation'"
+    exit 1
+fi
+
+# Find project directory (assume we're in it or can find packets/)
+if [[ -d "packets" ]]; then
+    PROJECT_DIR="."
+else
+    echo "Error: Must be run from project directory (containing packets/ folder)"
+    exit 1
+fi
+
+# Find the corresponding packet
+PACKET_FILE="packets/$HANDOFF_ID.json"
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Verify hash of workspace section
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "Error: Workspace section not found: $SECTION_FILE"
+    exit 1
+fi
+
+# Compute hash and compare
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+HASH_MATCH=true
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    HASH_MATCH=false
+    echo "⚠️  Warning: Hash mismatch detected"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+fi
+
+# Create ACK file
+ACK_DIR="acks"
+mkdir -p "$ACK_DIR"
+ACK_FILE="$ACK_DIR/$HANDOFF_ID.$AGENT_NAME.json"
+
+cat > "$ACK_FILE" << EOF
+{
+  "ack_for": "$HANDOFF_ID",
+  "from_agent": "$AGENT_NAME",
+  "hash_match": $HASH_MATCH,
+  "notes": "$NOTES",
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verified_hash": "$COMPUTED_HASH"
+}
+EOF
+
+echo "✅ ACK created: $ACK_FILE"
+
+if [[ "$HASH_MATCH" == "true" ]]; then
+    echo "✅ Hash verification passed"
+else
+    echo "❌ Hash verification failed - review required"
+    exit 2
+fi</div>
+            </div>
+            
+            <!-- Git Hooks Tab -->
+            <div id="hooks" class="tab-content">
+                <h2>Git Hooks</h2>
+                <p>Automated validation and processing triggers.</p>
+                
+                <div class="file-header">
+                    hooks/post-receive
+                    <button class="download-btn" onclick="downloadFile('post-receive', getPostReceiveHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# post-receive - VectorForge Git hook
+# Automatically processes new handoff packets
+
+set -e
+
+# Read the push information
+while read oldrev newrev refname; do
+    # Only process pushes to main branch
+    if [[ "$refname" == "refs/heads/main" ]]; then
+        echo "🔍 Processing VectorForge handoffs on main branch..."
+        
+        # Get list of new packet files
+        NEW_PACKETS=$(git diff --name-only "$oldrev" "$newrev" | grep 'packets/H-.*\.json$' || true)
+        
+        if [[ -n "$NEW_PACKETS" ]]; then
+            echo "📦 New packets detected:"
+            echo "$NEW_PACKETS"
+            
+            # Process each new packet
+            while IFS= read -r packet; do
+                if [[ -n "$packet" ]]; then
+                    echo "🔄 Processing $packet..."
+                    
+                    # Validate the packet
+                    if vf-validate "$packet"; then
+                        echo "✅ Validation passed for $packet"
+                        
+                        # Determine and execute lane logic
+                        LANE=$(vf-lane "$packet")
+                        echo "🛤️  Lane determined: $LANE"
+                        
+                        # Execute merge logic
+                        if vf-merge "$packet"; then
+                            echo "✅ Successfully processed $packet"
+                        else
+                            echo "❌ Failed to process $packet"
+                        fi
+                    else
+                        echo "❌ Validation failed for $packet"
+                    fi
+                fi
+            done <<< "$NEW_PACKETS"
+        else
+            echo "ℹ️  No new handoff packets in this push"
+        fi
+    fi
+done
+
+echo "🎉 Post-receive processing complete"</div>
+                
+                <div class="file-header">
+                    hooks/pre-commit
+                    <button class="download-btn" onclick="downloadFile('pre-commit', getPreCommitHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# pre-commit - VectorForge validation hook
+# Validates packets before they are committed
+
+set -e
+
+echo "🔍 VectorForge pre-commit validation..."
+
+# Get list of staged packet files
+STAGED_PACKETS=$(git diff --cached --name-only | grep 'packets/H-.*\.json$' || true)
+
+if [[ -z "$STAGED_PACKETS" ]]; then
+    echo "ℹ️  No handoff packets to validate"
+    exit 0
+fi
+
+echo "📦 Validating staged packets:"
+echo "$STAGED_PACKETS"
+
+VALIDATION_FAILED=false
+
+# Validate each staged packet
+while IFS= read -r packet; do
+    if [[ -n "$packet" ]]; then
+        echo "🔄 Validating $packet..."
+        
+        if [[ -f "$packet" ]]; then
+            if vf-validate "$packet"; then
+                echo "✅ $packet is valid"
+            else
+                echo "❌ $packet validation failed"
+                VALIDATION_FAILED=true
+            fi
+        else
+            echo "❌ $packet not found (deleted?)"
+        fi
+    fi
+done <<< "$STAGED_PACKETS"
+
+if [[ "$VALIDATION_FAILED" == "true" ]]; then
+    echo ""
+    echo "❌ Commit blocked: One or more packet validations failed"
+    echo "   Please fix the validation errors before committing"
+    exit 1
+fi
+
+echo "✅ All packets validated successfully"</div>
+            </div>
+            
+            <!-- Setup Tab -->
+            <div id="setup" class="tab-content">
+                <h2>Setup & Installation</h2>
+                <p>Complete setup guide for VectorForge MVP.</p>
+                
+                <h3>📋 Prerequisites</h3>
+                <ul>
+                    <li><strong>Git:</strong> Version 2.0 or higher</li>
+                    <li><strong>Node.js:</strong> For JSON schema validation (ajv-cli)</li>
+                    <li><strong>jq:</strong> JSON processing tool</li>
+                    <li><strong>GitHub CLI (optional):</strong> For automated PR creation</li>
+                </ul>
+                
+                <h3>🚀 Installation Steps</h3>
+                <div class="code-block bash">
+# 1. Clone the repository
+git clone https://github.com/your-org/vectorforge-mvp
+cd vectorforge-mvp
+
+# 2. Install dependencies
+npm install -g ajv-cli
+
+# 3. Make scripts executable
+chmod +x validator/vf-validate
+chmod +x hasher/vf-hash
+chmod +x lane_engine/vf-lane
+chmod +x merge_bot/vf-merge
+chmod +x merge_bot/vf-ack
+
+# 4. Add to PATH
+export PATH=$PATH:$(pwd)/validator:$(pwd)/hasher:$(pwd)/lane_engine:$(pwd)/merge_bot
+
+# 5. Install Git hooks (optional)
+cp hooks/pre-commit .git/hooks/
+cp hooks/post-receive .git/hooks/
+chmod +x .git/hooks/pre-commit .git/hooks/post-receive
+
+# 6. Verify installation
+vf-validate --help
+vf-hash --help
+vf-lane --help
+vf-merge --help
+vf-ack --help</div>
+                
+                <h3>🏗️ Project Structure Setup</h3>
+                <div class="code-block bash">
+# Create a new project
+mkdir -p projects/my-project/{sections,packets,logs,acks}
+
+# Initialize living document
+cat > projects/my-project/living-doc.md << 'EOF'
+# My Project - Living Document
+
+## Overview
+Project description and goals.
+
+## Always Keep
+- Critical constraint 1
+- Critical constraint 2
+
+## Current Status
+Work in progress...
+EOF
+
+# Create first section
+cat > projects/my-project/sections/section-1.md << 'EOF'
+# Section 1 - Project Initialization
+
+## Work Done
+- Project structure created
+- Initial requirements defined
+
+## Next Steps
+- Begin development phase
+EOF
+
+# Initialize git
+cd projects/my-project
+git init
+git add .
+git commit -m "Initial project setup"</div>
+                
+                <h3>⚙️ Configuration</h3>
+                <p>VectorForge uses convention over configuration. The main settings are:</p>
+                <ul>
+                    <li><strong>Project Layout:</strong> Fixed structure under <code>projects/</code></li>
+                    <li><strong>Hash Algorithm:</strong> SHA256 with canonical normalization</li>
+                    <li><strong>Lane Rules:</strong> Automated based on packet content</li>
+                    <li><strong>Review Frequency:</strong> Every 10th handoff + triggered conditions</li>
+                </ul>
+                
+                <h3>🔧 Environment Variables</h3>
+                <div class="code-block bash">
+# Optional environment variables
+export VECTORFORGE_LOG_LEVEL=INFO      # DEBUG, INFO, WARN, ERROR
+export VECTORFORGE_AUTO_PUSH=true      # Auto-push after merge
+export VECTORFORGE_REQUIRE_ACK=true    # Require ACK files</div>
+            </div>
+            
+            <!-- Smoke Test Tab -->
+            <div id="smoke-test" class="tab-content">
+                <h2>Smoke Test</h2>
+                <p>End-to-end validation of the VectorForge system.</p>
+                
+                <div class="file-header">
+                    smoke-test.sh
+                    <button class="download-btn" onclick="downloadFile('smoke-test.sh', getSmokeTestScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# smoke-test.sh - VectorForge MVP smoke test
+# Tests the complete handoff chain: Claude → ChatGPT → Gemini
+
+set -e
+
+echo "🧪 VectorForge MVP Smoke Test"
+echo "=============================="
+
+# Setup test environment
+TEST_PROJECT="user-auth-api-test"
+TEST_DIR="projects/$TEST_PROJECT"
+
+echo "🏗️  Setting up test project: $TEST_PROJECT"
+
+# Clean up any existing test
+rm -rf "$TEST_DIR"
+
+# Create test project structure
+mkdir -p "$TEST_DIR"/{sections,packets,logs,acks}
+
+# Create living document
+cat > "$TEST_DIR/living-doc.md" << 'EOF'
+# User Auth API - Living Document
+
+## Overview
+Building a secure user authentication API with modern best practices.
+
+## Always Keep
+- Use PostgreSQL for user data
+- Budget cap: $5,000
+- Launch deadline: September 1, 2025
+- Must follow OWASP security guidelines
+
+## Current Status
+Project initialized, ready for development.
+EOF
+
+# Create initial section
+cat > "$TEST_DIR/sections/section-1.md" << 'EOF'
+# Section 1 - Project Foundation
+
+## Project Overview
+User authentication API with secure registration, login, and session management.
+
+## Requirements Analysis
+- JWT-based authentication
+- Password hashing with bcrypt
+- Rate limiting for security
+- PostgreSQL database backend
+- RESTful API design
+
+## Initial Architecture
+- Node.js with Express framework
+- PostgreSQL database
+- Redis for session storage
+- Docker containerization
+
+## Next Phase
+Begin detailed API design and endpoint specification.
+EOF
+
+cd "$TEST_DIR"
+git init --quiet
+git add .
+git commit --quiet -m "Initial project setup"
+
+echo "✅ Test project created"
+
+# Test 1: Claude → ChatGPT (Fast Path)
+echo ""
+echo "🔄 Test 1: Claude → ChatGPT (Fast Path)"
+echo "======================================"
+
+# Create Claude's handoff packet
+CLAUDE_PACKET="packets/H-001.json"
+WORKSPACE_HASH=$(vf-hash "sections/section-1.md")
+ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $5,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$CLAUDE_PACKET" << EOF
+{
+  "handoff_id": "H-001",
+  "from_agent": "claude",
+  "to_agent": "chatgpt",
+  "round": 1,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-1.md",
+  "work_done": "Completed initial project analysis and architecture planning. Defined core requirements and technology stack.",
+  "next_tasks": [
+    "Design detailed API endpoints and request/response schemas",
+    "Create database schema for user management",
+    "Implement basic Express.js server structure"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH"
+}
+EOF
+
+echo "📝 Claude's packet created"
+
+# Validate Claude's packet
+echo "🔍 Validating Claude's packet..."
+if vf-validate "$CLAUDE_PACKET"; then
+    echo "✅ Claude's packet is valid"
+else
+    echo "❌ Claude's packet validation failed"
+    exit 1
+fi
+
+# Check lane determination
+CLAUDE_LANE=$(vf-lane "$CLAUDE_PACKET")
+if [[ "$CLAUDE_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CLAUDE_LANE"
+    exit 1
+fi
+
+# Create Claude's log
+cat > "logs/H-001.md" << 'EOF'
+# Log Note - Handoff H-001
+
+What changed:
+- Analyzed project requirements thoroughly
+- Designed initial system architecture
+- Selected technology stack (Node.js, PostgreSQL, Redis)
+- Documented security requirements
+
+Why we chose this:
+- Node.js provides excellent JSON handling and async support
+- PostgreSQL offers robust data integrity and security features
+- Redis enables fast session management
+- Architecture follows industry best practices
+
+Risks / unknowns:
+- Need to validate PostgreSQL schema design
+- Rate limiting implementation needs careful tuning
+- Docker configuration may need optimization
+
+What I need from you next:
+- Design specific API endpoints with detailed schemas
+- Create comprehensive database schema
+- Implement basic server structure with error handling
+
+Links / artifacts:
+- sections/section-1.md (updated architecture)
+- Project requirements document
+EOF
+
+git add .
+git commit --quiet -m "Claude H-001: Initial analysis and architecture"
+
+echo "✅ Claude's work committed"
+
+# Create ChatGPT's ACK
+echo "📥 Creating ChatGPT's ACK..."
+if vf-ack "H-001" "chatgpt" "Received Claude's analysis. Architecture looks solid, proceeding with API design."; then
+    echo "✅ ChatGPT's ACK created"
+else
+    echo "❌ ChatGPT's ACK creation failed"
+    exit 1
+fi
+
+# Test 2: ChatGPT → Gemini (Fast Path)
+echo ""
+echo "🔄 Test 2: ChatGPT → Gemini (Fast Path)"
+echo "====================================="
+
+# Update section with ChatGPT's work
+cat > "sections/section-2.md" << 'EOF'
+# Section 2 - API Design & Implementation
+
+## API Endpoints Designed
+
+### Authentication Endpoints
+- POST /api/auth/register - User registration
+- POST /api/auth/login - User login
+- POST /api/auth/logout - User logout
+- GET /api/auth/me - Get current user info
+
+### User Management
+- GET /api/users/profile - Get user profile
+- PUT /api/users/profile - Update user profile
+- DELETE /api/users/account - Delete user account
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+```
+
+### Sessions Table
+```sql
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id INTEGER REFERENCES users(id),
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Implementation Started
+- Express.js server with middleware setup
+- Password hashing with bcrypt
+- JWT token generation and validation
+- Basic error handling and logging
+
+## Next Phase
+Need comprehensive testing strategy and documentation.
+EOF
+
+# Create ChatGPT's handoff packet
+CHATGPT_PACKET="packets/H-002.json"
+WORKSPACE_HASH_2=$(vf-hash "sections/section-2.md")
+
+cat > "$CHATGPT_PACKET" << EOF
+{
+  "handoff_id": "H-002",
+  "from_agent": "chatgpt",
+  "to_agent": "gemini",
+  "round": 2,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-2.md",
+  "work_done": "Designed complete API endpoint structure, created database schema, and implemented core authentication logic with Express.js and bcrypt.",
+  "next_tasks": [
+    "Create comprehensive API documentation",
+    "Design testing strategy with unit and integration tests",
+    "Write deployment guide and setup instructions"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_2"
+}
+EOF
+
+echo "📝 ChatGPT's packet created"
+
+# Validate and process
+if vf-validate "$CHATGPT_PACKET"; then
+    echo "✅ ChatGPT's packet is valid"
+else
+    echo "❌ ChatGPT's packet validation failed"
+    exit 1
+fi
+
+CHATGPT_LANE=$(vf-lane "$CHATGPT_PACKET")
+if [[ "$CHATGPT_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CHATGPT_LANE"
+    exit 1
+fi
+
+# Create ChatGPT's log
+cat > "logs/H-002.md" << 'EOF'
+# Log Note - Handoff H-002
+
+What changed:
+- Designed complete REST API with 7 endpoints
+- Created PostgreSQL database schema for users and sessions
+- Implemented Express.js server with authentication middleware
+- Added bcrypt password hashing and JWT token management
+
+Why we chose this:
+- RESTful design follows standard conventions
+- Database schema is normalized and secure
+- JWT tokens provide stateless authentication
+- bcrypt offers industry-standard password protection
+
+Risks / unknowns:
+- API documentation needs to be comprehensive for adoption
+- Testing coverage requirements need definition
+- Deployment strategy needs container orchestration details
+
+What I need from you next:
+- Create user-friendly API documentation
+- Design comprehensive testing approach
+- Write clear deployment and maintenance guides
+
+Links / artifacts:
+- sections/section-2.md (complete implementation)
+- Database migration scripts
+- Server configuration files
+EOF
+
+git add .
+git commit --quiet -m "ChatGPT H-002: API design and implementation"
+
+# Create Gemini's ACK
+if vf-ack "H-002" "gemini" "Excellent implementation! Ready to create documentation and testing strategy."; then
+    echo "✅ Gemini's ACK created"
+else
+    echo "❌ Gemini's ACK creation failed"
+    exit 1
+fi
+
+# Test 3: Gemini with Always Keep Change (Review Path)
+echo ""
+echo "🔄 Test 3: Gemini with Constraint Change (Review Path)"
+echo "=================================================="
+
+# Update section with Gemini's work
+cat > "sections/section-3.md" << 'EOF'
+# Section 3 - Documentation & Testing Strategy
+
+## API Documentation Created
+Comprehensive OpenAPI 3.0 specification with:
+- Interactive Swagger UI interface
+- Detailed request/response schemas
+- Authentication flow examples
+- Error handling documentation
+- Rate limiting explanations
+
+## Testing Strategy Implemented
+
+### Unit Tests
+- Authentication middleware tests
+- Password hashing validation
+- JWT token generation/validation
+- Database model tests
+
+### Integration Tests
+- Full API endpoint testing
+- Database transaction testing
+- Session management validation
+- Error scenario handling
+
+### Security Testing
+- SQL injection prevention
+- XSS protection validation
+- Rate limiting effectiveness
+- Password strength requirements
+
+## Deployment Documentation
+- Docker containerization guide
+- Environment configuration
+- Database setup and migrations
+- Production security checklist
+- Monitoring and logging setup
+
+## Performance Optimization
+Analysis shows current implementation can handle 1000+ concurrent users,
+but for scalability beyond 5000 users, we recommend:
+- Database connection pooling optimization
+- Redis cluster setup for sessions
+- Load balancer configuration
+- CDN integration for static assets
+
+## Budget Impact Analysis
+Current implementation is well within budget, but scaling recommendations
+would require additional infrastructure investment of approximately $2,000/month
+for high-traffic scenarios.
+EOF
+
+# Create Gemini's packet with budget change (triggers review path)
+GEMINI_PACKET="packets/H-003.json"
+WORKSPACE_HASH_3=$(vf-hash "sections/section-3.md")
+NEW_ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $7,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$GEMINI_PACKET" << EOF
+{
+  "handoff_id": "H-003",
+  "from_agent": "gemini",
+  "to_agent": "claude",
+  "round": 3,
+  "lane": "review_path",
+  "auto_merge_eligible": false,
+  "risk_assessment": "high",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$7,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$NEW_ALWAYS_KEEP_HASH",
+  "scope_delta": "budget change",
+  "workspace_section": "sections/section-3.md",
+  "work_done": "Created comprehensive documentation, testing strategy, and deployment guides. Identified scaling requirements that necessitate budget adjustment for high-traffic scenarios.",
+  "next_tasks": [
+    "Review and approve budget increase to \$7,000 for scaling infrastructure",
+    "Implement performance optimizations based on analysis",
+    "Finalize deployment pipeline and monitoring setup"
+  ],
+  "attention_required": true,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_3"
+}
+EOF
+
+echo "📝 Gemini's packet created (with budget change)"
+
+# Validate and check lane
+if vf-validate "$GEMINI_PACKET"; then
+    echo "✅ Gemini's packet is valid"
+else
+    echo "❌ Gemini's packet validation failed"
+    exit 1
+fi
+
+GEMINI_LANE=$(vf-lane "$GEMINI_PACKET")
+if [[ "$GEMINI_LANE" == "review_path" ]]; then
+    echo "✅ Lane correctly determined: review_path (budget change detected)"
+else
+    echo "❌ Expected review_path, got: $GEMINI_LANE"
+    exit 1
+fi
+
+# Test Results Summary
+echo ""
+echo "🎉 Smoke Test Results"
+echo "===================="
+echo "✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED"
+echo "✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED"
+echo "✅ Test 3: Gemini Budget Change (Review Path) - PASSED"
+echo ""
+echo "🔍 Verification Summary:"
+echo "✅ All packets validated successfully"
+echo "✅ Lane determination working correctly"
+echo "✅ Hash verification functioning"
+echo "✅ ACK generation working"
+echo "✅ Always Keep constraint monitoring active"
+echo "✅ Review path triggered for budget changes"
+echo ""
+echo "📊 Test Project Created: $TEST_DIR"
+echo "🎯 VectorForge MVP is fully functional!"
+
+# Clean up
+cd ../..
+echo ""
+echo "🧹 Smoke test completed successfully"
+echo "   Test project preserved at: $TEST_DIR"
+echo "   Review the generated files to see the complete handoff chain"</div>
+                
+                <h3>🎯 Running the Smoke Test</h3>
+                <div class="code-block bash">
+# Run the complete smoke test
+./smoke-test.sh
+
+# Expected output:
+# ✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED
+# ✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED  
+# ✅ Test 3: Gemini Budget Change (Review Path) - PASSED</div>
+                
+                <h3>🔧 Manual Testing Commands</h3>
+                <div class="code-block bash">
+# Test individual components
+vf-validate projects/user-auth-api/packets/H-001.json
+vf-hash projects/user-auth-api/sections/section-1.md
+vf-lane projects/user-auth-api/packets/H-001.json
+vf-ack H-001 chatgpt "Test acknowledgment"
+
+# Test full workflow
+cd projects/user-auth-api
+vf-merge packets/H-001.json</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+        
+        function downloadFile(filename, content, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function getValidatorScript() {
+            return `#!/bin/bash
+# vf-validate - VectorForge packet validator
+# Usage: vf-validate <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCHEMA_FILE="$SCRIPT_DIR/packet-schema.json"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-validate <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+if [[ ! -f "$SCHEMA_FILE" ]]; then
+    echo "Error: Schema file not found: $SCHEMA_FILE"
+    exit 1
+fi
+
+# JSON Schema validation
+if ! command -v ajv &> /dev/null; then
+    echo "Error: ajv-cli not installed. Run: npm install -g ajv-cli"
+    exit 1
+fi
+
+echo "🔍 Validating JSON schema..."
+if ! ajv validate -s "$SCHEMA_FILE" -d "$PACKET_FILE"; then
+    echo "❌ Schema validation failed"
+    exit 1
+fi
+
+echo "✅ Schema validation passed"
+
+# Semantic validation
+echo "🔍 Validating semantics..."
+
+# Extract project directory
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+
+# Check if living document exists
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$PROJECT_DIR/$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "❌ Workspace section not found: $SECTION_FILE"
+    exit 3
+fi
+
+# Verify hash
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    echo "❌ Hash verification failed"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+    exit 2
+fi
+
+echo "✅ Hash verification passed"
+
+# Verify always_keep hash
+ALWAYS_KEEP_JSON=$(jq -c '.always_keep | sort' "$PACKET_FILE")
+CLAIMED_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+COMPUTED_AK_HASH=$(echo "$ALWAYS_KEEP_JSON" | sha256sum | cut -d' ' -f1)
+
+if [[ "$CLAIMED_AK_HASH" != "$COMPUTED_AK_HASH" ]]; then
+    echo "❌ Always Keep hash verification failed"
+    echo "   Claimed: $CLAIMED_AK_HASH"
+    echo "   Computed: $COMPUTED_AK_HASH"
+    exit 2
+fi
+
+echo "✅ Always Keep hash verification passed"
+
+# Check handoff ID format
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+if [[ ! "$HANDOFF_ID" =~ ^H-[0-9A-Za-z_-]+$ ]]; then
+    echo "❌ Invalid handoff ID format: $HANDOFF_ID"
+    exit 3
+fi
+
+echo "✅ Handoff ID format valid"
+
+echo "🎉 All validations passed"
+exit 0`;
+        }
+        
+        function getSchemaFile() {
+            return `{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VectorForge Handoff Packet",
+  "type": "object",
+  "required": [
+    "handoff_id", "from_agent", "to_agent", "round",
+    "lane", "auto_merge_eligible", "risk_assessment",
+    "always_keep", "always_keep_hash", "scope_delta",
+    "workspace_section", "work_done", "next_tasks",
+    "attention_required", "confidence_level", "hash_verification",
+    "cross_project_dependencies", "timestamp_utc", "verification_signature"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^H-[0-9A-Za-z_-]+$",
+      "description": " || true)
+
+if [[ -z "$STAGED_PACKETS" ]]; then
+    echo "ℹ️  No handoff packets to validate"
+    exit 0
+fi
+
+echo "📦 Validating staged packets:"
+echo "$STAGED_PACKETS"
+
+VALIDATION_FAILED=false
+
+# Validate each staged packet
+while IFS= read -r packet; do
+    if [[ -n "$packet" ]]; then
+        echo "🔄 Validating $packet..."
+        
+        if [[ -f "$packet" ]]; then
+            if vf-validate "$packet"; then
+                echo "✅ $packet is valid"
+            else
+                echo "❌ $packet validation failed"
+                VALIDATION_FAILED=true
+            fi
+        else
+            echo "❌ $packet not found (deleted?)"
+        fi
+    fi
+done <<< "$STAGED_PACKETS"
+
+if [[ "$VALIDATION_FAILED" == "true" ]]; then
+    echo ""
+    echo "❌ Commit blocked: One or more packet validations failed"
+    echo "   Please fix the validation errors before committing"
+    exit 1
+fi
+
+echo "✅ All packets validated successfully"`;
+        }
+        
+        function getSmokeTestScript() {
+            return `#!/bin/bash
+# smoke-test.sh - VectorForge MVP smoke test
+# Tests the complete handoff chain: Claude → ChatGPT → Gemini
+
+set -e
+
+echo "🧪 VectorForge MVP Smoke Test"
+echo "=============================="
+
+# ... (smoke test content continues as shown in the HTML)
+# This is a truncated version for the download function
+# The full script is visible in the HTML content above
+
+echo "✅ Smoke test script ready"
+echo "Run this script to test the complete VectorForge workflow"`;
+        }
+    </script>
+</body>
+</html>Unique handoff identifier"
+    },
+    "from_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Source agent name"
+    },
+    "to_agent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Target agent name"
+    },
+    "round": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Handoff round number"
+    },
+    "lane": {
+      "type": "string",
+      "enum": ["fast_path", "review_path"],
+      "description": "Processing lane"
+    },
+    "auto_merge_eligible": {
+      "type": "boolean",
+      "description": "Whether this handoff can be auto-merged"
+    },
+    "risk_assessment": {
+      "type": "string",
+      "enum": ["low", "high"],
+      "description": "Risk level assessment"
+    },
+    "always_keep": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Non-negotiable constraints"
+    },
+    "always_keep_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of always_keep array"
+    },
+    "scope_delta": {
+      "type": "string",
+      "enum": ["none", "budget change", "timeline change", "deps change"],
+      "description": "Type of scope change"
+    },
+    "workspace_section": {
+      "type": "string",
+      "pattern": "^sections/[^\\n]+\\.md$",
+      "description": "Reference to workspace section file"
+    },
+    "work_done": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Summary of completed work"
+    },
+    "next_tasks": {
+      "type": "array",
+      "items": {"type": "string"},
+      "minItems": 1,
+      "description": "Tasks for the receiving agent"
+    },
+    "attention_required": {
+      "type": "boolean",
+      "description": "Whether human attention is required"
+    },
+    "confidence_level": {
+      "type": "string",
+      "enum": ["high", "low"],
+      "description": "Agent confidence in the work"
+    },
+    "hash_verification": {
+      "type": "string",
+      "enum": ["pass", "fail"],
+      "description": "Hash verification status"
+    },
+    "cross_project_dependencies": {
+      "type": "boolean",
+      "description": "Whether this affects other projects"
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time",
+      "description": "UTC timestamp of handoff"
+    },
+    "verification_signature": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "SHA256 hash of workspace section content"
+    }
+  },
+  "additionalProperties": false
+}</div>
+            </div>
+            
+            <!-- Hasher Tab -->
+            <div id="hasher" class="tab-content">
+                <h2>Canonical Hasher</h2>
+                <p>Consistent SHA256 hashing for context verification.</p>
+                
+                <div class="file-header">
+                    hasher/vf-hash
+                    <button class="download-btn" onclick="downloadFile('vf-hash', getHasherScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-hash - VectorForge canonical hasher
+# Usage: vf-hash <file>
+
+set -e
+
+FILE="$1"
+
+if [[ -z "$FILE" ]]; then
+    echo "Usage: vf-hash <file>"
+    exit 1
+fi
+
+if [[ ! -f "$FILE" ]]; then
+    echo "Error: File not found: $FILE"
+    exit 1
+fi
+
+# Canonical normalization rules:
+# 1. UTF-8 encoding (assume input is UTF-8)
+# 2. LF line endings
+# 3. Trim trailing whitespace per line
+# 4. No other normalization
+
+# Create temporary file for normalization
+TEMP_FILE=$(mktemp)
+trap "rm -f $TEMP_FILE" EXIT
+
+# Process file with canonical rules
+sed 's/[[:space:]]*$//' "$FILE" | \
+sed 's/\r$//' > "$TEMP_FILE"
+
+# Compute SHA256 hash
+HASH=$(sha256sum "$TEMP_FILE" | cut -d' ' -f1)
+
+echo "$HASH"</div>
+            </div>
+            
+            <!-- Lane Engine Tab -->
+            <div id="lane-engine" class="tab-content">
+                <h2>Lane Engine</h2>
+                <p>Automated lane determination based on packet content and project state.</p>
+                
+                <div class="file-header">
+                    lane_engine/vf-lane
+                    <button class="download-btn" onclick="downloadFile('vf-lane', getLaneEngineScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-lane - VectorForge lane engine
+# Usage: vf-lane <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-lane <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Extract packet data
+LANE=$(jq -r '.lane' "$PACKET_FILE")
+SCOPE_DELTA=$(jq -r '.scope_delta' "$PACKET_FILE")
+ATTENTION_REQUIRED=$(jq -r '.attention_required' "$PACKET_FILE")
+CONFIDENCE_LEVEL=$(jq -r '.confidence_level' "$PACKET_FILE")
+HASH_VERIFICATION=$(jq -r '.hash_verification' "$PACKET_FILE")
+CROSS_DEPS=$(jq -r '.cross_project_dependencies' "$PACKET_FILE")
+ROUND=$(jq -r '.round' "$PACKET_FILE")
+
+# Project directory and state
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+
+# Check for previous packets to compare always_keep
+PACKETS_DIR="$PROJECT_DIR/packets"
+PREVIOUS_PACKETS=($(ls "$PACKETS_DIR"/H-*.json 2>/dev/null | sort -V | head -n -1))
+
+ALWAYS_KEEP_CHANGED=false
+if [[ ${#PREVIOUS_PACKETS[@]} -gt 0 ]]; then
+    LATEST_PREVIOUS="${PREVIOUS_PACKETS[-1]}"
+    CURRENT_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+    PREVIOUS_AK_HASH=$(jq -r '.always_keep_hash' "$LATEST_PREVIOUS")
+    
+    if [[ "$CURRENT_AK_HASH" != "$PREVIOUS_AK_HASH" ]]; then
+        ALWAYS_KEEP_CHANGED=true
+    fi
+fi
+
+# Check for mandatory review (every 10th handoff)
+MANDATORY_REVIEW=false
+if (( ROUND % 10 == 0 )); then
+    MANDATORY_REVIEW=true
+fi
+
+# Lane determination logic
+FINAL_LANE="fast_path"
+
+# Force review_path conditions
+if [[ "$ALWAYS_KEEP_CHANGED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (always_keep modified)" >&2
+elif [[ "$SCOPE_DELTA" != "none" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (scope change: $SCOPE_DELTA)" >&2
+elif [[ "$ATTENTION_REQUIRED" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (attention required)" >&2
+elif [[ "$CONFIDENCE_LEVEL" == "low" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (low confidence)" >&2
+elif [[ "$HASH_VERIFICATION" == "fail" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (hash verification failed)" >&2
+elif [[ "$CROSS_DEPS" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (cross-project dependencies)" >&2
+elif [[ "$MANDATORY_REVIEW" == "true" ]]; then
+    FINAL_LANE="review_path"
+    echo "# Lane: review_path (mandatory 10th handoff review)" >&2
+else
+    echo "# Lane: fast_path (all conditions met)" >&2
+fi
+
+# Verify packet lane matches computed lane
+PACKET_LANE=$(jq -r '.lane' "$PACKET_FILE")
+if [[ "$PACKET_LANE" != "$FINAL_LANE" ]]; then
+    echo "Warning: Packet declares lane '$PACKET_LANE' but computed lane is '$FINAL_LANE'" >&2
+fi
+
+echo "$FINAL_LANE"
+exit 0</div>
+            </div>
+            
+            <!-- Merge Bot Tab -->
+            <div id="merge-bot" class="tab-content">
+                <h2>Merge Bot</h2>
+                <p>Automated Git operations for fast path merges and review path PRs.</p>
+                
+                <div class="file-header">
+                    merge_bot/vf-merge
+                    <button class="download-btn" onclick="downloadFile('vf-merge', getMergeBotScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-merge - VectorForge merge bot
+# Usage: vf-merge <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-merge <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Validate packet first
+if ! vf-validate "$PACKET_FILE"; then
+    echo "❌ Packet validation failed"
+    exit 1
+fi
+
+# Determine lane
+LANE=$(vf-lane "$PACKET_FILE")
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+FROM_AGENT=$(jq -r '.from_agent' "$PACKET_FILE")
+TO_AGENT=$(jq -r '.to_agent' "$PACKET_FILE")
+WORK_DONE=$(jq -r '.work_done' "$PACKET_FILE")
+
+# Ensure we're in the project directory
+cd "$PROJECT_DIR"
+
+# Create audit log entry
+AUDIT_LOG="handoff-audit.log"
+TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+echo "$TIMESTAMP $HANDOFF_ID $LANE processing" >> "$AUDIT_LOG"
+
+if [[ "$LANE" == "fast_path" ]]; then
+    echo "🚀 Fast path: Auto-merging $HANDOFF_ID"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🤖 Auto-merge $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: fast_path
+Auto-merged by VectorForge"
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE auto-merged" >> "$AUDIT_LOG"
+    echo "✅ Auto-merge completed"
+    
+elif [[ "$LANE" == "review_path" ]]; then
+    echo "🔍 Review path: Creating PR for $HANDOFF_ID"
+    
+    # Create feature branch
+    BRANCH_NAME="handoff/$HANDOFF_ID"
+    git checkout -b "$BRANCH_NAME"
+    
+    # Add files and commit
+    git add .
+    git commit -m "🔍 Review required: $HANDOFF_ID: $FROM_AGENT → $TO_AGENT
+
+$WORK_DONE
+
+Lane: review_path
+Requires steward approval"
+    
+    # Push branch
+    git push -u origin "$BRANCH_NAME"
+    
+    # Create PR (if GitHub CLI is available)
+    if command -v gh &> /dev/null; then
+        gh pr create \
+            --title "🔍 Handoff $HANDOFF_ID: $FROM_AGENT → $TO_AGENT" \
+            --body "**Handoff ID:** $HANDOFF_ID
+**Lane:** review_path
+**From:** $FROM_AGENT
+**To:** $TO_AGENT
+
+**Work Done:**
+$WORK_DONE
+
+**Review Required:** This handoff requires steward approval due to:
+- Critical constraint changes
+- Scope modifications
+- Agent uncertainty
+- Mandatory review cycle
+
+**Next Steps:**
+1. Review the changes in the diff
+2. Verify all 'Always Keep' constraints are preserved
+3. Approve or request changes
+4. Merge when ready" \
+            --label "needs-steward-review" \
+            --assignee "@me"
+        
+        echo "✅ Pull request created"
+    else
+        echo "ℹ️  GitHub CLI not available. Manual PR creation required."
+        echo "   Branch: $BRANCH_NAME"
+        echo "   Please create PR manually for steward review."
+    fi
+    
+    # Return to main branch
+    git checkout main
+    
+    echo "$TIMESTAMP $HANDOFF_ID $LANE pr-created" >> "$AUDIT_LOG"
+    echo "✅ Review path processing completed"
+    
+else
+    echo "❌ Unknown lane: $LANE"
+    exit 1
+fi
+
+echo "📊 Audit log updated: $AUDIT_LOG"</div>
+                
+                <div class="file-header">
+                    merge_bot/vf-ack
+                    <button class="download-btn" onclick="downloadFile('vf-ack', getAckScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# vf-ack - VectorForge acknowledgment creator
+# Usage: vf-ack <handoff-id> <agent-name> [notes]
+
+set -e
+
+HANDOFF_ID="$1"
+AGENT_NAME="$2"
+NOTES="${3:-}"
+
+if [[ -z "$HANDOFF_ID" || -z "$AGENT_NAME" ]]; then
+    echo "Usage: vf-ack <handoff-id> <agent-name> [notes]"
+    echo "Example: vf-ack H-001 chatgpt 'Proceeding with implementation'"
+    exit 1
+fi
+
+# Find project directory (assume we're in it or can find packets/)
+if [[ -d "packets" ]]; then
+    PROJECT_DIR="."
+else
+    echo "Error: Must be run from project directory (containing packets/ folder)"
+    exit 1
+fi
+
+# Find the corresponding packet
+PACKET_FILE="packets/$HANDOFF_ID.json"
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet not found: $PACKET_FILE"
+    exit 1
+fi
+
+# Verify hash of workspace section
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "Error: Workspace section not found: $SECTION_FILE"
+    exit 1
+fi
+
+# Compute hash and compare
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+HASH_MATCH=true
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    HASH_MATCH=false
+    echo "⚠️  Warning: Hash mismatch detected"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+fi
+
+# Create ACK file
+ACK_DIR="acks"
+mkdir -p "$ACK_DIR"
+ACK_FILE="$ACK_DIR/$HANDOFF_ID.$AGENT_NAME.json"
+
+cat > "$ACK_FILE" << EOF
+{
+  "ack_for": "$HANDOFF_ID",
+  "from_agent": "$AGENT_NAME",
+  "hash_match": $HASH_MATCH,
+  "notes": "$NOTES",
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verified_hash": "$COMPUTED_HASH"
+}
+EOF
+
+echo "✅ ACK created: $ACK_FILE"
+
+if [[ "$HASH_MATCH" == "true" ]]; then
+    echo "✅ Hash verification passed"
+else
+    echo "❌ Hash verification failed - review required"
+    exit 2
+fi</div>
+            </div>
+            
+            <!-- Git Hooks Tab -->
+            <div id="hooks" class="tab-content">
+                <h2>Git Hooks</h2>
+                <p>Automated validation and processing triggers.</p>
+                
+                <div class="file-header">
+                    hooks/post-receive
+                    <button class="download-btn" onclick="downloadFile('post-receive', getPostReceiveHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# post-receive - VectorForge Git hook
+# Automatically processes new handoff packets
+
+set -e
+
+# Read the push information
+while read oldrev newrev refname; do
+    # Only process pushes to main branch
+    if [[ "$refname" == "refs/heads/main" ]]; then
+        echo "🔍 Processing VectorForge handoffs on main branch..."
+        
+        # Get list of new packet files
+        NEW_PACKETS=$(git diff --name-only "$oldrev" "$newrev" | grep 'packets/H-.*\.json$' || true)
+        
+        if [[ -n "$NEW_PACKETS" ]]; then
+            echo "📦 New packets detected:"
+            echo "$NEW_PACKETS"
+            
+            # Process each new packet
+            while IFS= read -r packet; do
+                if [[ -n "$packet" ]]; then
+                    echo "🔄 Processing $packet..."
+                    
+                    # Validate the packet
+                    if vf-validate "$packet"; then
+                        echo "✅ Validation passed for $packet"
+                        
+                        # Determine and execute lane logic
+                        LANE=$(vf-lane "$packet")
+                        echo "🛤️  Lane determined: $LANE"
+                        
+                        # Execute merge logic
+                        if vf-merge "$packet"; then
+                            echo "✅ Successfully processed $packet"
+                        else
+                            echo "❌ Failed to process $packet"
+                        fi
+                    else
+                        echo "❌ Validation failed for $packet"
+                    fi
+                fi
+            done <<< "$NEW_PACKETS"
+        else
+            echo "ℹ️  No new handoff packets in this push"
+        fi
+    fi
+done
+
+echo "🎉 Post-receive processing complete"</div>
+                
+                <div class="file-header">
+                    hooks/pre-commit
+                    <button class="download-btn" onclick="downloadFile('pre-commit', getPreCommitHook(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# pre-commit - VectorForge validation hook
+# Validates packets before they are committed
+
+set -e
+
+echo "🔍 VectorForge pre-commit validation..."
+
+# Get list of staged packet files
+STAGED_PACKETS=$(git diff --cached --name-only | grep 'packets/H-.*\.json$' || true)
+
+if [[ -z "$STAGED_PACKETS" ]]; then
+    echo "ℹ️  No handoff packets to validate"
+    exit 0
+fi
+
+echo "📦 Validating staged packets:"
+echo "$STAGED_PACKETS"
+
+VALIDATION_FAILED=false
+
+# Validate each staged packet
+while IFS= read -r packet; do
+    if [[ -n "$packet" ]]; then
+        echo "🔄 Validating $packet..."
+        
+        if [[ -f "$packet" ]]; then
+            if vf-validate "$packet"; then
+                echo "✅ $packet is valid"
+            else
+                echo "❌ $packet validation failed"
+                VALIDATION_FAILED=true
+            fi
+        else
+            echo "❌ $packet not found (deleted?)"
+        fi
+    fi
+done <<< "$STAGED_PACKETS"
+
+if [[ "$VALIDATION_FAILED" == "true" ]]; then
+    echo ""
+    echo "❌ Commit blocked: One or more packet validations failed"
+    echo "   Please fix the validation errors before committing"
+    exit 1
+fi
+
+echo "✅ All packets validated successfully"</div>
+            </div>
+            
+            <!-- Setup Tab -->
+            <div id="setup" class="tab-content">
+                <h2>Setup & Installation</h2>
+                <p>Complete setup guide for VectorForge MVP.</p>
+                
+                <h3>📋 Prerequisites</h3>
+                <ul>
+                    <li><strong>Git:</strong> Version 2.0 or higher</li>
+                    <li><strong>Node.js:</strong> For JSON schema validation (ajv-cli)</li>
+                    <li><strong>jq:</strong> JSON processing tool</li>
+                    <li><strong>GitHub CLI (optional):</strong> For automated PR creation</li>
+                </ul>
+                
+                <h3>🚀 Installation Steps</h3>
+                <div class="code-block bash">
+# 1. Clone the repository
+git clone https://github.com/your-org/vectorforge-mvp
+cd vectorforge-mvp
+
+# 2. Install dependencies
+npm install -g ajv-cli
+
+# 3. Make scripts executable
+chmod +x validator/vf-validate
+chmod +x hasher/vf-hash
+chmod +x lane_engine/vf-lane
+chmod +x merge_bot/vf-merge
+chmod +x merge_bot/vf-ack
+
+# 4. Add to PATH
+export PATH=$PATH:$(pwd)/validator:$(pwd)/hasher:$(pwd)/lane_engine:$(pwd)/merge_bot
+
+# 5. Install Git hooks (optional)
+cp hooks/pre-commit .git/hooks/
+cp hooks/post-receive .git/hooks/
+chmod +x .git/hooks/pre-commit .git/hooks/post-receive
+
+# 6. Verify installation
+vf-validate --help
+vf-hash --help
+vf-lane --help
+vf-merge --help
+vf-ack --help</div>
+                
+                <h3>🏗️ Project Structure Setup</h3>
+                <div class="code-block bash">
+# Create a new project
+mkdir -p projects/my-project/{sections,packets,logs,acks}
+
+# Initialize living document
+cat > projects/my-project/living-doc.md << 'EOF'
+# My Project - Living Document
+
+## Overview
+Project description and goals.
+
+## Always Keep
+- Critical constraint 1
+- Critical constraint 2
+
+## Current Status
+Work in progress...
+EOF
+
+# Create first section
+cat > projects/my-project/sections/section-1.md << 'EOF'
+# Section 1 - Project Initialization
+
+## Work Done
+- Project structure created
+- Initial requirements defined
+
+## Next Steps
+- Begin development phase
+EOF
+
+# Initialize git
+cd projects/my-project
+git init
+git add .
+git commit -m "Initial project setup"</div>
+                
+                <h3>⚙️ Configuration</h3>
+                <p>VectorForge uses convention over configuration. The main settings are:</p>
+                <ul>
+                    <li><strong>Project Layout:</strong> Fixed structure under <code>projects/</code></li>
+                    <li><strong>Hash Algorithm:</strong> SHA256 with canonical normalization</li>
+                    <li><strong>Lane Rules:</strong> Automated based on packet content</li>
+                    <li><strong>Review Frequency:</strong> Every 10th handoff + triggered conditions</li>
+                </ul>
+                
+                <h3>🔧 Environment Variables</h3>
+                <div class="code-block bash">
+# Optional environment variables
+export VECTORFORGE_LOG_LEVEL=INFO      # DEBUG, INFO, WARN, ERROR
+export VECTORFORGE_AUTO_PUSH=true      # Auto-push after merge
+export VECTORFORGE_REQUIRE_ACK=true    # Require ACK files</div>
+            </div>
+            
+            <!-- Smoke Test Tab -->
+            <div id="smoke-test" class="tab-content">
+                <h2>Smoke Test</h2>
+                <p>End-to-end validation of the VectorForge system.</p>
+                
+                <div class="file-header">
+                    smoke-test.sh
+                    <button class="download-btn" onclick="downloadFile('smoke-test.sh', getSmokeTestScript(), 'text/plain')">Download</button>
+                </div>
+                <div class="file-content bash">#!/bin/bash
+# smoke-test.sh - VectorForge MVP smoke test
+# Tests the complete handoff chain: Claude → ChatGPT → Gemini
+
+set -e
+
+echo "🧪 VectorForge MVP Smoke Test"
+echo "=============================="
+
+# Setup test environment
+TEST_PROJECT="user-auth-api-test"
+TEST_DIR="projects/$TEST_PROJECT"
+
+echo "🏗️  Setting up test project: $TEST_PROJECT"
+
+# Clean up any existing test
+rm -rf "$TEST_DIR"
+
+# Create test project structure
+mkdir -p "$TEST_DIR"/{sections,packets,logs,acks}
+
+# Create living document
+cat > "$TEST_DIR/living-doc.md" << 'EOF'
+# User Auth API - Living Document
+
+## Overview
+Building a secure user authentication API with modern best practices.
+
+## Always Keep
+- Use PostgreSQL for user data
+- Budget cap: $5,000
+- Launch deadline: September 1, 2025
+- Must follow OWASP security guidelines
+
+## Current Status
+Project initialized, ready for development.
+EOF
+
+# Create initial section
+cat > "$TEST_DIR/sections/section-1.md" << 'EOF'
+# Section 1 - Project Foundation
+
+## Project Overview
+User authentication API with secure registration, login, and session management.
+
+## Requirements Analysis
+- JWT-based authentication
+- Password hashing with bcrypt
+- Rate limiting for security
+- PostgreSQL database backend
+- RESTful API design
+
+## Initial Architecture
+- Node.js with Express framework
+- PostgreSQL database
+- Redis for session storage
+- Docker containerization
+
+## Next Phase
+Begin detailed API design and endpoint specification.
+EOF
+
+cd "$TEST_DIR"
+git init --quiet
+git add .
+git commit --quiet -m "Initial project setup"
+
+echo "✅ Test project created"
+
+# Test 1: Claude → ChatGPT (Fast Path)
+echo ""
+echo "🔄 Test 1: Claude → ChatGPT (Fast Path)"
+echo "======================================"
+
+# Create Claude's handoff packet
+CLAUDE_PACKET="packets/H-001.json"
+WORKSPACE_HASH=$(vf-hash "sections/section-1.md")
+ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $5,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$CLAUDE_PACKET" << EOF
+{
+  "handoff_id": "H-001",
+  "from_agent": "claude",
+  "to_agent": "chatgpt",
+  "round": 1,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-1.md",
+  "work_done": "Completed initial project analysis and architecture planning. Defined core requirements and technology stack.",
+  "next_tasks": [
+    "Design detailed API endpoints and request/response schemas",
+    "Create database schema for user management",
+    "Implement basic Express.js server structure"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH"
+}
+EOF
+
+echo "📝 Claude's packet created"
+
+# Validate Claude's packet
+echo "🔍 Validating Claude's packet..."
+if vf-validate "$CLAUDE_PACKET"; then
+    echo "✅ Claude's packet is valid"
+else
+    echo "❌ Claude's packet validation failed"
+    exit 1
+fi
+
+# Check lane determination
+CLAUDE_LANE=$(vf-lane "$CLAUDE_PACKET")
+if [[ "$CLAUDE_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CLAUDE_LANE"
+    exit 1
+fi
+
+# Create Claude's log
+cat > "logs/H-001.md" << 'EOF'
+# Log Note - Handoff H-001
+
+What changed:
+- Analyzed project requirements thoroughly
+- Designed initial system architecture
+- Selected technology stack (Node.js, PostgreSQL, Redis)
+- Documented security requirements
+
+Why we chose this:
+- Node.js provides excellent JSON handling and async support
+- PostgreSQL offers robust data integrity and security features
+- Redis enables fast session management
+- Architecture follows industry best practices
+
+Risks / unknowns:
+- Need to validate PostgreSQL schema design
+- Rate limiting implementation needs careful tuning
+- Docker configuration may need optimization
+
+What I need from you next:
+- Design specific API endpoints with detailed schemas
+- Create comprehensive database schema
+- Implement basic server structure with error handling
+
+Links / artifacts:
+- sections/section-1.md (updated architecture)
+- Project requirements document
+EOF
+
+git add .
+git commit --quiet -m "Claude H-001: Initial analysis and architecture"
+
+echo "✅ Claude's work committed"
+
+# Create ChatGPT's ACK
+echo "📥 Creating ChatGPT's ACK..."
+if vf-ack "H-001" "chatgpt" "Received Claude's analysis. Architecture looks solid, proceeding with API design."; then
+    echo "✅ ChatGPT's ACK created"
+else
+    echo "❌ ChatGPT's ACK creation failed"
+    exit 1
+fi
+
+# Test 2: ChatGPT → Gemini (Fast Path)
+echo ""
+echo "🔄 Test 2: ChatGPT → Gemini (Fast Path)"
+echo "====================================="
+
+# Update section with ChatGPT's work
+cat > "sections/section-2.md" << 'EOF'
+# Section 2 - API Design & Implementation
+
+## API Endpoints Designed
+
+### Authentication Endpoints
+- POST /api/auth/register - User registration
+- POST /api/auth/login - User login
+- POST /api/auth/logout - User logout
+- GET /api/auth/me - Get current user info
+
+### User Management
+- GET /api/users/profile - Get user profile
+- PUT /api/users/profile - Update user profile
+- DELETE /api/users/account - Delete user account
+
+## Database Schema
+
+### Users Table
+```sql
+CREATE TABLE users (
+  id SERIAL PRIMARY KEY,
+  email VARCHAR(255) UNIQUE NOT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  first_name VARCHAR(100),
+  last_name VARCHAR(100),
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  is_active BOOLEAN DEFAULT true
+);
+```
+
+### Sessions Table
+```sql
+CREATE TABLE sessions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id INTEGER REFERENCES users(id),
+  expires_at TIMESTAMP NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Implementation Started
+- Express.js server with middleware setup
+- Password hashing with bcrypt
+- JWT token generation and validation
+- Basic error handling and logging
+
+## Next Phase
+Need comprehensive testing strategy and documentation.
+EOF
+
+# Create ChatGPT's handoff packet
+CHATGPT_PACKET="packets/H-002.json"
+WORKSPACE_HASH_2=$(vf-hash "sections/section-2.md")
+
+cat > "$CHATGPT_PACKET" << EOF
+{
+  "handoff_id": "H-002",
+  "from_agent": "chatgpt",
+  "to_agent": "gemini",
+  "round": 2,
+  "lane": "fast_path",
+  "auto_merge_eligible": true,
+  "risk_assessment": "low",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$5,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$ALWAYS_KEEP_HASH",
+  "scope_delta": "none",
+  "workspace_section": "sections/section-2.md",
+  "work_done": "Designed complete API endpoint structure, created database schema, and implemented core authentication logic with Express.js and bcrypt.",
+  "next_tasks": [
+    "Create comprehensive API documentation",
+    "Design testing strategy with unit and integration tests",
+    "Write deployment guide and setup instructions"
+  ],
+  "attention_required": false,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_2"
+}
+EOF
+
+echo "📝 ChatGPT's packet created"
+
+# Validate and process
+if vf-validate "$CHATGPT_PACKET"; then
+    echo "✅ ChatGPT's packet is valid"
+else
+    echo "❌ ChatGPT's packet validation failed"
+    exit 1
+fi
+
+CHATGPT_LANE=$(vf-lane "$CHATGPT_PACKET")
+if [[ "$CHATGPT_LANE" == "fast_path" ]]; then
+    echo "✅ Lane correctly determined: fast_path"
+else
+    echo "❌ Expected fast_path, got: $CHATGPT_LANE"
+    exit 1
+fi
+
+# Create ChatGPT's log
+cat > "logs/H-002.md" << 'EOF'
+# Log Note - Handoff H-002
+
+What changed:
+- Designed complete REST API with 7 endpoints
+- Created PostgreSQL database schema for users and sessions
+- Implemented Express.js server with authentication middleware
+- Added bcrypt password hashing and JWT token management
+
+Why we chose this:
+- RESTful design follows standard conventions
+- Database schema is normalized and secure
+- JWT tokens provide stateless authentication
+- bcrypt offers industry-standard password protection
+
+Risks / unknowns:
+- API documentation needs to be comprehensive for adoption
+- Testing coverage requirements need definition
+- Deployment strategy needs container orchestration details
+
+What I need from you next:
+- Create user-friendly API documentation
+- Design comprehensive testing approach
+- Write clear deployment and maintenance guides
+
+Links / artifacts:
+- sections/section-2.md (complete implementation)
+- Database migration scripts
+- Server configuration files
+EOF
+
+git add .
+git commit --quiet -m "ChatGPT H-002: API design and implementation"
+
+# Create Gemini's ACK
+if vf-ack "H-002" "gemini" "Excellent implementation! Ready to create documentation and testing strategy."; then
+    echo "✅ Gemini's ACK created"
+else
+    echo "❌ Gemini's ACK creation failed"
+    exit 1
+fi
+
+# Test 3: Gemini with Always Keep Change (Review Path)
+echo ""
+echo "🔄 Test 3: Gemini with Constraint Change (Review Path)"
+echo "=================================================="
+
+# Update section with Gemini's work
+cat > "sections/section-3.md" << 'EOF'
+# Section 3 - Documentation & Testing Strategy
+
+## API Documentation Created
+Comprehensive OpenAPI 3.0 specification with:
+- Interactive Swagger UI interface
+- Detailed request/response schemas
+- Authentication flow examples
+- Error handling documentation
+- Rate limiting explanations
+
+## Testing Strategy Implemented
+
+### Unit Tests
+- Authentication middleware tests
+- Password hashing validation
+- JWT token generation/validation
+- Database model tests
+
+### Integration Tests
+- Full API endpoint testing
+- Database transaction testing
+- Session management validation
+- Error scenario handling
+
+### Security Testing
+- SQL injection prevention
+- XSS protection validation
+- Rate limiting effectiveness
+- Password strength requirements
+
+## Deployment Documentation
+- Docker containerization guide
+- Environment configuration
+- Database setup and migrations
+- Production security checklist
+- Monitoring and logging setup
+
+## Performance Optimization
+Analysis shows current implementation can handle 1000+ concurrent users,
+but for scalability beyond 5000 users, we recommend:
+- Database connection pooling optimization
+- Redis cluster setup for sessions
+- Load balancer configuration
+- CDN integration for static assets
+
+## Budget Impact Analysis
+Current implementation is well within budget, but scaling recommendations
+would require additional infrastructure investment of approximately $2,000/month
+for high-traffic scenarios.
+EOF
+
+# Create Gemini's packet with budget change (triggers review path)
+GEMINI_PACKET="packets/H-003.json"
+WORKSPACE_HASH_3=$(vf-hash "sections/section-3.md")
+NEW_ALWAYS_KEEP_HASH=$(echo '["Use PostgreSQL for user data","Budget cap: $7,000","Launch deadline: September 1, 2025","Must follow OWASP security guidelines"]' | jq -c 'sort' | sha256sum | cut -d' ' -f1)
+
+cat > "$GEMINI_PACKET" << EOF
+{
+  "handoff_id": "H-003",
+  "from_agent": "gemini",
+  "to_agent": "claude",
+  "round": 3,
+  "lane": "review_path",
+  "auto_merge_eligible": false,
+  "risk_assessment": "high",
+  "always_keep": [
+    "Use PostgreSQL for user data",
+    "Budget cap: \$7,000",
+    "Launch deadline: September 1, 2025",
+    "Must follow OWASP security guidelines"
+  ],
+  "always_keep_hash": "$NEW_ALWAYS_KEEP_HASH",
+  "scope_delta": "budget change",
+  "workspace_section": "sections/section-3.md",
+  "work_done": "Created comprehensive documentation, testing strategy, and deployment guides. Identified scaling requirements that necessitate budget adjustment for high-traffic scenarios.",
+  "next_tasks": [
+    "Review and approve budget increase to \$7,000 for scaling infrastructure",
+    "Implement performance optimizations based on analysis",
+    "Finalize deployment pipeline and monitoring setup"
+  ],
+  "attention_required": true,
+  "confidence_level": "high",
+  "hash_verification": "pass",
+  "cross_project_dependencies": false,
+  "timestamp_utc": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+  "verification_signature": "$WORKSPACE_HASH_3"
+}
+EOF
+
+echo "📝 Gemini's packet created (with budget change)"
+
+# Validate and check lane
+if vf-validate "$GEMINI_PACKET"; then
+    echo "✅ Gemini's packet is valid"
+else
+    echo "❌ Gemini's packet validation failed"
+    exit 1
+fi
+
+GEMINI_LANE=$(vf-lane "$GEMINI_PACKET")
+if [[ "$GEMINI_LANE" == "review_path" ]]; then
+    echo "✅ Lane correctly determined: review_path (budget change detected)"
+else
+    echo "❌ Expected review_path, got: $GEMINI_LANE"
+    exit 1
+fi
+
+# Test Results Summary
+echo ""
+echo "🎉 Smoke Test Results"
+echo "===================="
+echo "✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED"
+echo "✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED"
+echo "✅ Test 3: Gemini Budget Change (Review Path) - PASSED"
+echo ""
+echo "🔍 Verification Summary:"
+echo "✅ All packets validated successfully"
+echo "✅ Lane determination working correctly"
+echo "✅ Hash verification functioning"
+echo "✅ ACK generation working"
+echo "✅ Always Keep constraint monitoring active"
+echo "✅ Review path triggered for budget changes"
+echo ""
+echo "📊 Test Project Created: $TEST_DIR"
+echo "🎯 VectorForge MVP is fully functional!"
+
+# Clean up
+cd ../..
+echo ""
+echo "🧹 Smoke test completed successfully"
+echo "   Test project preserved at: $TEST_DIR"
+echo "   Review the generated files to see the complete handoff chain"</div>
+                
+                <h3>🎯 Running the Smoke Test</h3>
+                <div class="code-block bash">
+# Run the complete smoke test
+./smoke-test.sh
+
+# Expected output:
+# ✅ Test 1: Claude → ChatGPT (Fast Path) - PASSED
+# ✅ Test 2: ChatGPT → Gemini (Fast Path) - PASSED  
+# ✅ Test 3: Gemini Budget Change (Review Path) - PASSED</div>
+                
+                <h3>🔧 Manual Testing Commands</h3>
+                <div class="code-block bash">
+# Test individual components
+vf-validate projects/user-auth-api/packets/H-001.json
+vf-hash projects/user-auth-api/sections/section-1.md
+vf-lane projects/user-auth-api/packets/H-001.json
+vf-ack H-001 chatgpt "Test acknowledgment"
+
+# Test full workflow
+cd projects/user-auth-api
+vf-merge packets/H-001.json</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            document.getElementById(tabName).classList.add('active');
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+        
+        function downloadFile(filename, content, mimeType) {
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        function getValidatorScript() {
+            return `#!/bin/bash
+# vf-validate - VectorForge packet validator
+# Usage: vf-validate <packet.json>
+
+set -e
+
+PACKET_FILE="$1"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SCHEMA_FILE="$SCRIPT_DIR/packet-schema.json"
+
+if [[ -z "$PACKET_FILE" ]]; then
+    echo "Usage: vf-validate <packet.json>"
+    exit 1
+fi
+
+if [[ ! -f "$PACKET_FILE" ]]; then
+    echo "Error: Packet file not found: $PACKET_FILE"
+    exit 1
+fi
+
+if [[ ! -f "$SCHEMA_FILE" ]]; then
+    echo "Error: Schema file not found: $SCHEMA_FILE"
+    exit 1
+fi
+
+# JSON Schema validation
+if ! command -v ajv &> /dev/null; then
+    echo "Error: ajv-cli not installed. Run: npm install -g ajv-cli"
+    exit 1
+fi
+
+echo "🔍 Validating JSON schema..."
+if ! ajv validate -s "$SCHEMA_FILE" -d "$PACKET_FILE"; then
+    echo "❌ Schema validation failed"
+    exit 1
+fi
+
+echo "✅ Schema validation passed"
+
+# Semantic validation
+echo "🔍 Validating semantics..."
+
+# Extract project directory
+PROJECT_DIR=$(dirname $(dirname "$PACKET_FILE"))
+
+# Check if living document exists
+WORKSPACE_SECTION=$(jq -r '.workspace_section' "$PACKET_FILE")
+SECTION_FILE="$PROJECT_DIR/$WORKSPACE_SECTION"
+
+if [[ ! -f "$SECTION_FILE" ]]; then
+    echo "❌ Workspace section not found: $SECTION_FILE"
+    exit 3
+fi
+
+# Verify hash
+CLAIMED_HASH=$(jq -r '.verification_signature' "$PACKET_FILE")
+COMPUTED_HASH=$(vf-hash "$SECTION_FILE")
+
+if [[ "$CLAIMED_HASH" != "$COMPUTED_HASH" ]]; then
+    echo "❌ Hash verification failed"
+    echo "   Claimed: $CLAIMED_HASH"
+    echo "   Computed: $COMPUTED_HASH"
+    exit 2
+fi
+
+echo "✅ Hash verification passed"
+
+# Verify always_keep hash
+ALWAYS_KEEP_JSON=$(jq -c '.always_keep | sort' "$PACKET_FILE")
+CLAIMED_AK_HASH=$(jq -r '.always_keep_hash' "$PACKET_FILE")
+COMPUTED_AK_HASH=$(echo "$ALWAYS_KEEP_JSON" | sha256sum | cut -d' ' -f1)
+
+if [[ "$CLAIMED_AK_HASH" != "$COMPUTED_AK_HASH" ]]; then
+    echo "❌ Always Keep hash verification failed"
+    echo "   Claimed: $CLAIMED_AK_HASH"
+    echo "   Computed: $COMPUTED_AK_HASH"
+    exit 2
+fi
+
+echo "✅ Always Keep hash verification passed"
+
+# Check handoff ID format
+HANDOFF_ID=$(jq -r '.handoff_id' "$PACKET_FILE")
+if [[ ! "$HANDOFF_ID" =~ ^H-[0-9A-Za-z_-]+$ ]]; then
+    echo "❌ Invalid handoff ID format: $HANDOFF_ID"
+    exit 3
+fi
+
+echo "✅ Handoff ID format valid"
+
+echo "🎉 All validations passed"
+exit 0`;
+        }
+        
+        function getSchemaFile() {
+            return `{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "VectorForge Handoff Packet",
+  "type": "object",
+  "required": [
+    "handoff_id", "from_agent", "to_agent", "round",
+    "lane", "auto_merge_eligible", "risk_assessment",
+    "always_keep", "always_keep_hash", "scope_delta",
+    "workspace_section", "work_done", "next_tasks",
+    "attention_required", "confidence_level", "hash_verification",
+    "cross_project_dependencies", "timestamp_utc", "verification_signature"
+  ],
+  "properties": {
+    "handoff_id": {
+      "type": "string",
+      "pattern": "^H-[0-9A-Za-z_-]+$",
+      "description": "
